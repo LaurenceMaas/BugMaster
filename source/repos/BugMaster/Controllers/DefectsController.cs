@@ -38,9 +38,9 @@ namespace BugMaster.Controllers
             return _context.Defect.ToList().Select(_mapper.Map<Defect, DefectDto>);
         }
 
-        // GET: api/Defects/5dto
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetDefect([FromRoute] int id)
+        // GET: api/Defects/5
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetDefectFromId([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
@@ -48,6 +48,46 @@ namespace BugMaster.Controllers
             }
 
             var defect = await _context.Defect.FindAsync(id);
+
+            if (defect == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(defect);
+        }
+
+        // GET: api/Defects/ShortDescription
+        [HttpGet("ShortDescription/{ShortDescription}")]
+        public async Task<IActionResult> GetDefectFromShortDescription([FromRoute] string shortDescription)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var defect = await _context.Defect.Where(x => x.ShortDescription == shortDescription).ToListAsync();
+
+            if (defect == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(defect);
+        }
+
+        // GET: api/Defects/StepsToRecreate
+        [HttpGet("StepsToRecreate/{StepsToRecreate}")]
+        public async Task<IActionResult> GetDefectFromStepsToRecreate([FromRoute] string stepsToRecreate)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var defect = await _context.Defect.Where(x => x.StepsToRecreate == stepsToRecreate).ToListAsync();
 
             if (defect == null)
             {
@@ -138,7 +178,7 @@ namespace BugMaster.Controllers
                 }
             }
 
-            return CreatedAtAction("GetDefect", new { id = defecttoAdd.Id }, defecttoAdd);
+            return CreatedAtAction("GetDefectFromId", new { id = defecttoAdd.Id }, defecttoAdd);
         }
 
         // DELETE: api/Defects/5
