@@ -97,6 +97,46 @@ namespace BugMaster.Controllers
             return Ok(defect);
         }
 
+        // GET: api/Defects/LoggedBy/{usergid}
+        [HttpGet("LoggedBy/{LoggedById}")]
+        public async Task<IActionResult> GetDefectFromLoggedBy([FromRoute] string loggedById)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var defect = await _context.Defect.Where(x => x.LoggedbyId == loggedById).ToListAsync();
+
+            if (defect == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(defect);
+        }
+
+        // GET: api/Defects/AssignedTo/{usergid}
+        [HttpGet("AssignedTo/{AssignedToId}")]
+        public async Task<IActionResult> GetDefectFromAssignedTo([FromRoute] string assignedToId)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var defect = await _context.Defect.Where(x => x.AssignToId == assignedToId).ToListAsync();
+
+            if (defect == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(defect);
+        }
+
         // PUT: api/Defects/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDefect([FromRoute] int id, [FromBody] DefectDto defectdto)
