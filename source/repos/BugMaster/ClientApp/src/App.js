@@ -3,6 +3,7 @@ import { Route } from 'react-router';
 import { Layout } from './components/Layout';
 import { RegisterLogin } from './components/RegisterLogin';
 import { LogDefect } from './components/LogDefect';
+import { LogBug } from './components/LogBug';
 import ApiAuthorizationRoutes from './components/api-authorization/ApiAuthorizationRoutes';
 import { ApplicationPaths } from './components/api-authorization/ApiAuthorizationConstants';
 import authService from './components/api-authorization/AuthorizeService';
@@ -41,7 +42,7 @@ export default class App extends Component
         const { isAuthenticated, userName } = this.state;
         return isAuthenticated === true ?
             <Layout>
-                <Route path='/LogDefect' component={LogDefect} />
+                <Route path='/LogBug' component={LogBug} />
                 <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
             </Layout> :
             <RegisterLogin>

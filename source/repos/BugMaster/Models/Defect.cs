@@ -14,6 +14,10 @@ namespace BugMaster.Models
         public string ShortDescription { get; set; }
         [Required]
         public string StepsToRecreate { get; set; }
+        [Required]
+        public string ExpectedResult { get; set; }
+        [Required]
+        public string ActualResult { get; set; }
         public ApplicationUser Loggedby { get; set; }
         public string LoggedbyId { get; set; }
         public ApplicationUser AssignTo { get; set; }

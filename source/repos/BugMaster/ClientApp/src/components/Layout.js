@@ -7,9 +7,9 @@ export class Layout extends Component {
 
     render() {
         return (
-            <div>
+            <div style={{ height: 'inherit' }}>
                 <NavMenu />
-                <Container>
+                <Container style={{ height:'inherit'}}>
                     {this.props.children}
                 </Container>
             </div>

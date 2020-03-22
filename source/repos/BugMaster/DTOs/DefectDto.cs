@@ -10,8 +10,14 @@ namespace BugMaster.DTOs
     public class DefectDto
     {
         public int Id { get; set; }
+        [Required]
         public string ShortDescription { get; set; }
+        [Required]
         public string StepsToRecreate { get; set; }
+        [Required]
+        public string ExpectedResult { get; set; }
+        [Required]
+        public string ActualResult { get; set; }
         public string LoggedbyId { get; set; }
         public string AssignToId { get; set; }
         public int CurrentStatusId { get; set; }

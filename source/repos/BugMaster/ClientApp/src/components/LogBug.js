@@ -1,8 +1,14 @@
 ﻿import React, { Component } from 'react';
 import authService from './api-authorization/AuthorizeService';
-import { Button, Form, FormGroup, Label, Input, FormText, Modal, ModalHeader, ModalBody, ModalFooter, CustomInput } from 'reactstrap';
+import { Row, Col, TabContent, NavLink, NavItem, Nav, Form, FormGroup,Modal,Button, ModalHeader, ModalBody, ModalFooter, Input} from 'reactstrap';
 import { Attachments } from './Attachments';
+import { ShortDescription } from './ShortDescription';
+import { StepsToRecreate } from './StepsToRecreate';
+import { Severity } from './Severity';
+import { ExpectedActual } from './ExpectedActual';
 import './LogBug.css';
+import classnames from 'classnames';
+
 
 const ShortDescriptionStyling = {
     width: "882px",
@@ -28,7 +34,7 @@ const AddattachmentStyling = {
     display: 'inline-block',
 }
 
-export class LogDefect extends Component {
+export class LogBug extends Component {
     constructor(props) {
         super(props);
 
@@ -43,6 +49,7 @@ export class LogDefect extends Component {
             ShowResultDialog: false,
             ModalTitle: "",
             ModalContent: "",
+            ActiveTab : 1,
             Logbug : "log bug"
         };
     }
@@ -96,6 +103,8 @@ export class LogDefect extends Component {
             }
         }
 
+        console.log("setFile = (e) => this.state.Attachments",this.state.Attachments)
+
     }
 
     onAddAttachment = (e, tableId, files) => {
@@ -134,8 +143,6 @@ export class LogDefect extends Component {
                     btn.addEventListener("click", (e) => { this.onDeleteAttachment(e, rowname, tableId) });
                     removeButton.appendChild(btn);
                 }
-
-
             })
         }
 
@@ -160,7 +167,7 @@ export class LogDefect extends Component {
             return (
                 <FormGroup>
                     <label for="Severities" style={LabelStyling}>Please indicate how serious the issue is:</label><br />
-                    <Input type="select" name="select" id="Severities" className="LogDefectButtons" >
+                    <Input type="select" name="select" id="Severities" className="LogBugButtons" >
                         {selectsev}
                     </Input>
                 </FormGroup>
@@ -191,12 +198,14 @@ export class LogDefect extends Component {
         let logformdata = new FormData();
         logformdata.append("ShortDescription", document.getElementById("ShortDescription").value);
         logformdata.append("StepsToRecreate", document.getElementById("StepsToRecreate").value);
+        logformdata.append("ExpectedResult", document.getElementById("ExpectedResult").value);
+        logformdata.append("ActualResult", document.getElementById("ActualResult").value);
         logformdata.append("LoggedbyId", this.state.userId);
         logformdata.append("AssignToId", '');
         logformdata.append("CurrentStatusId", 1);
         logformdata.append("SeverityId", document.getElementById("Severities").value);
         this.state.Attachments.map(attach => logformdata.append("files", attach));
-
+        console.log("logformdata:",logformdata)
         authService.getAccessToken().then(token =>
             fetch('/api/Defects', { method: 'POST', body: logformdata },
                 { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } })).
@@ -209,37 +218,26 @@ export class LogDefect extends Component {
 
                     if (JSON.parse(JSON.stringify(this.state.Response)).id != null) {
                         this.setState({
-                                        ModalTitle: "Bug logged!", ModalContent: "Thanks a lot! Your bug id is: "
-                                + JSON.parse(JSON.stringify(this.state.Response)).id + " but don't worry you don't have to write it down, the bug will appear on your homepage"                            
+                            ModalTitle: "Bug logged!", ModalContent: "Thanks a lot! Your bug id is: "
+                                + JSON.parse(JSON.stringify(this.state.Response)).id + " \nbut don't worry you don't have to write it down,\nthe bug will appear on your homepage"
                         })
 
-                        document.getElementById("LogDefectForm").reset(); 
+                        document.getElementById("LogBugForm").reset();
                         this.setState({ Logbug: "Log another bug" })
 
-                        for (var i = tableRef.rows.length-1; i > 0 ; i--) {
+                        for (var i = tableRef.rows.length - 1; i > 0; i--) {
                             tableRef.deleteRow(i);
                         }
 
-                    } else if (this.state.Response.errors.StepsToRecreate && this.state.Response.errors.ShortDescription) {
-                           
-                            this.setState({
-                                ModalTitle: "Oops!",
-                                ModalContent :"It seems you didn't fill in the steps to recreate nor a description and we need them to log your bug"
-                            })
-                    } else if (this.state.Response.errors.StepsToRecreate && !this.state.Response.errors.ShortDescription) {
+                    } else if (this.state.Response.errors.StepsToRecreate || this.state.Response.errors.ShortDescription || this.state.Response.errors.ExpectedResults || 
+                        this.state.Response.errors.ActualResult) {
 
                         this.setState({
                             ModalTitle: "Oops!",
-                            ModalContent: "It seems you didn't fill in the steps to recreate and we need them to log your bug"
+                            ModalContent: "It seems you didn't fill one or more of the following fields:\nSteps to recreate\nExpected Results\nActual Results\nWe need them to log your bug"
                         })
-                    } else if (!this.state.Response.errors.StepsToRecreate && this.state.Response.errors.ShortDescription) {
 
-                        this.setState({
-                            ModalTitle: "Oops!",
-                            ModalContent: "It seems you didn't fill in a short description and we need to log your bug"
-                        })
                     }
-
                 }
             })
        
@@ -262,9 +260,14 @@ export class LogDefect extends Component {
         this.setState({ ShowResultDialog: false });
     };
 
+
+    changeTab = (tab) => {
+        this.setState({ ActiveTab: tab })
+    }
+
     render() {
         const { userName } = this.state;
-        let contents = LogDefect.renderSeverities(this.state.Severities);
+        let contents = LogBug.renderSeverities(this.state.Severities);
         let response = this.state.Response
 
         if (response === null) {
@@ -272,53 +275,58 @@ export class LogDefect extends Component {
         }
 
         return (
-            <div>               
-                <Modal isOpen={this.state.ShowLogDefectDialog} toggle={this.showDefectModal} style={{ maxWidth: 'max-content', border: "3px solid rgb(240, 95, 68)" }}>
-                    <ModalHeader style={{ lineheight: "0.15", backgroundColor: "#F05F44", height: "3.0rem" }}><h1 style={{fontSize:"0.9rem"}}>Sure thing, {userName}</h1></ModalHeader>
-                    <ModalBody>
-                        <Form onSubmit={e => this.submit(e)} id="LogDefectForm">                           
-                            <div>
-                                <FormGroup>
-                                    <label for="ShortDescription" className="LogDefectLabels" >Please enter a brief description of what the problem is:</label><br />
-                                    <Input type="textarea" name="text" id="ShortDescription" className= "LogDefectLabels" />                                    
-                                </FormGroup>
-                            </div>
-                            <div>
-                                <FormGroup>
-                                    <label for="StepsToRecreate" style={LabelStyling}>Please enter steps to recreate:</label><br />
-                                    <Input type="textarea" name="StepsToRecreate" id="StepsToRecreate" style={StepstoRecreateStyling} />
-                                </FormGroup>
-                            </div>
-                            <div>
-                                {contents}
-                            </div>
-                            <div>
-                                <FormGroup>
-                                    <FormText color="muted">Do you need to add any attachments like a screenshot? Add them here</FormText>
-                                    <Label for="Attachment" style={LabelStyling}>Attachments:</Label>
-                                    <div className="container-name">
-                                        <Input type="file" multiple name="Attachment" id="AttachmentFile" label="Select one or more files" style={{ width: '500px', display: 'inline-block', fontSize: "0.75rem" }} onChange={(e) => { this.setFile(e) }} />
-                                        <button name="AddAttachment" className="btn btn-primary" style={AddattachmentStyling} onClick={(e) => { this.onAddAttachment(e, "AttachmentList", this.state.Attachments) }} >Add Attachments</button>
-                                    </div>
-                                </FormGroup>
-                                <Attachments id="AttachmentList" test={this.state.ShowLogDefectDialog} ></Attachments>
-                            </div>
+            <div style={{ height: 'inherit'}}>
+                <Form onSubmit={e => this.submit(e)} id="LogBugForm" style={{ width: "inherit", height: '90%' }}> 
+                    <Nav tabs>
+                        <NavItem>
+                            <NavLink className={classnames({ active: this.state.ActiveTab === '1' })}
+                                onClick={() => { this.changeTab('1'); }}>
+                                Description
+                            </NavLink>
+                        </NavItem>
+                        <NavItem>
+                            <NavLink className={classnames({ active: this.state.ActiveTab === '2' })}
+                                onClick={() => { this.changeTab('2'); }}>
+                                Steps to recreate
+                            </NavLink>
+                        </NavItem>
+                        <NavItem>
+                            <NavLink className={classnames({ active: this.state.ActiveTab === '3' })}
+                                onClick={() => { this.changeTab('3'); }}>
+                                Expected vs Actual 
+                            </NavLink>
+                        </NavItem>
+                        <NavItem>
+                            <NavLink className={classnames({ active: this.state.ActiveTab === '4' })}
+                                onClick={() => { this.changeTab('4'); }}>
+                                Severity
+                            </NavLink>
+                        </NavItem> 
+                        <NavItem>
+                            <NavLink className={classnames({ active: this.state.ActiveTab === '5' })}
+                                onClick={() => { this.changeTab('5'); }}>
+                                Attachments
+                            </NavLink>
+                        </NavItem>   
+                    </Nav>
+                    <TabContent activeTab={this.state.ActiveTab} className= "TabContent">
+                        <ShortDescription Id= "1"></ShortDescription>
+                        <StepsToRecreate Id="2"></StepsToRecreate>
+                        <ExpectedActual Id="3"></ExpectedActual>
+                        <Severity Id="4" Contents={contents}></Severity>
+                        <Attachments Id="5" setFile={this.setFile} onAddAttachment={this.onAddAttachment} attachmentfiles={this.state.Attachments}></Attachments>     
+                    </TabContent>
+                    <div>
+                        <button type="submit" name="LogBug" className="btn btn-primary LogBugButtons" style={{ float: 'right', marginTop: '50px' }}>{this.state.Logbug}</button>
+                        <Modal isOpen={this.state.ShowResultDialog} toggle={this.hideResultModal} style={{ whiteSpace: 'pre'}}>
+                            <ModalHeader style={{ lineheight: "0.15", backgroundColor: "#F05F44", fontSize: "0.7rem" }}><h1 style={{ fontSize: "1.25rem" }}>{this.state.ModalTitle}</h1></ModalHeader>
+                            <ModalBody>{this.state.ModalContent}</ModalBody>
                             <ModalFooter>
-                                <div>
-                                    <button type="submit" name="LogDefect" className="btn btn-primary LogDefectButtons">{this.state.Logbug}</button>
-                                    <button type="button" name="Close" onClick={this.hideDefectModal} className="btn btn-primary LogDefectButtons">Close</button>
-                                    <Modal isOpen={this.state.ShowResultDialog} toggle={this.hideResultModal} style={{ border: "3px solid rgb(240, 95, 68)" }}>
-                                        <ModalHeader style={{ lineheight: "0.15", backgroundColor: "#F05F44", fontSize: "0.7rem" }}><h1 style={{ fontSize: "0.9rem" }}>{this.state.ModalTitle}</h1></ModalHeader>
-                                        <ModalBody>{this.state.ModalContent}</ModalBody>
-                                        <ModalFooter>
-                                            <Button className="btn btn-primary" style={AddattachmentStyling} onClick={this.hideResultModal}>Ok,got it!</Button>{' '}
-                                        </ModalFooter>
-                                    </Modal> 
-                                </div>
+                                <Button className="btn btn-primary" style={AddattachmentStyling} onClick={this.hideResultModal}>Ok,got it!</Button>{' '}
                             </ModalFooter>
-                        </Form>
-                    </ModalBody>
-                </Modal>
+                        </Modal> 
+                    </div>
+                </Form> 
             </div>
         );
     }

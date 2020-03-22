@@ -36,7 +36,7 @@ export class NavMenu extends Component {
                                     <NavLink tag={Link} className="text-light" to=""><i className="fas fa-search"></i>  Search for a bug</NavLink>
                                 </NavItem>
                                 <NavItem>
-                                    <NavLink tag={Link} id="LogDefect" className="text-light" to="/LogDefect"><i className="fas fa-plus-circle"></i> Log a bug</NavLink>
+                                    <NavLink tag={Link} id="LogDefect" className="text-light" to="/LogBug"><i className="fas fa-plus-circle"></i> Log a bug</NavLink>
                                 </NavItem>
                                 <NavItem>
                                     <NavLink tag={Link} className="text-light" to="/fetch-data"><i className="fas fa-chart-bar"></i> Reports</NavLink>

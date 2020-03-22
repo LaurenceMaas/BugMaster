@@ -1,0 +1,40 @@
+﻿.LogBugButtons {
+    font-Size: 0.8rem;
+    display: inline-block;
+    width: auto ;
+}
+
+.LogDefectInputs {
+    width: 882px;
+    font-Size: 0.75rem;
+    height: 5.0rem;
+}
+
+.LogDefectLabels {
+    font-Size: 0.75rem;
+}
+
+.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link {
+    background-color: #F05F44;
+    border-color: #F05F44 #F05F44 #F05F44;
+}
+
+.nav-tabs {
+    border-bottom: 1px solid #F05F44;
+}
+
+.nav-link {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+.TabContent {
+    height: auto
+}
+
+.modal-content{
+    width: max-content
+}
+
+.modal-header {
+    padding-bottom: 0px;
+}

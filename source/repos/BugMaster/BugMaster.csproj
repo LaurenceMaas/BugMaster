@@ -36,18 +36,24 @@
 
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
+    <Compile Remove="AppData\Attachments\**" />
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove="AppData\Attachments\**" />
+    <EmbeddedResource Remove="AppData\Attachments\**" />
     <None Remove="$(SpaRoot)**" />
+    <None Remove="AppData\Attachments\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="ClientApp\src\components\AddAttachments.js" />
+    <None Remove="ClientApp\src\components\Home.js" />
+    <None Remove="ClientApp\src\components\LogDefect.js" />
     <None Remove="ClientApp\src\components\LogDefectForm.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AppData\Attachments\" />
+    <Folder Include="AppData\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
