@@ -46,7 +46,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\UsersController.cs" />
+    <Compile Remove="Models\User.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="ClientApp\src\components\AddAttachments.js" />
+    <None Remove="ClientApp\src\components\BugSearch.js" />
+    <None Remove="ClientApp\src\components\BugSearchResults.js" />
+    <None Remove="ClientApp\src\components\Counter.js" />
     <None Remove="ClientApp\src\components\Home.js" />
     <None Remove="ClientApp\src\components\LogDefect.js" />
     <None Remove="ClientApp\src\components\LogDefectForm.js" />

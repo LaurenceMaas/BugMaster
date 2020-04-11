@@ -15,8 +15,8 @@ export class ShortDescription extends Component {
                     <Col sm="12">
                         <div>
                             <FormGroup>
-                                <label for="ShortDescription" className="LogDefectLabels">Please enter a brief description of what the problem is:</label><br />
-                                <Input type="textarea" name="text" id="ShortDescription" className="LogDefectLabels" />
+                                <label for="ShortDescription" className="LogBugLabels">Please enter a brief description of what the problem is:</label><br />
+                                <Input type="textarea" name="text" id="ShortDescription" className="LogBugTextArea" />
                             </FormGroup>
                         </div>
                     </Col>

@@ -1,6 +1,6 @@
-﻿import React, { Component } from 'react';
+﻿import React, { Component } from 'react'
 import authService from './api-authorization/AuthorizeService';
-import { Row, Col, TabContent, NavLink, NavItem, Nav, Form, FormGroup,Modal,Button, ModalHeader, ModalBody, ModalFooter, Input} from 'reactstrap';
+import {  TabContent, NavLink, NavItem, Nav, Form, FormGroup,Modal,Button, ModalHeader, ModalBody, ModalFooter, Input} from 'reactstrap';
 import { Attachments } from './Attachments';
 import { ShortDescription } from './ShortDescription';
 import { StepsToRecreate } from './StepsToRecreate';
@@ -49,7 +49,7 @@ export class LogBug extends Component {
             ShowResultDialog: false,
             ModalTitle: "",
             ModalContent: "",
-            ActiveTab : 1,
+            ActiveTab :'1',
             Logbug : "log bug"
         };
     }
@@ -62,7 +62,6 @@ export class LogBug extends Component {
 
     componentWillUnmount() {
         authService.unsubscribe(this._subscription);
-        console.log("in logdefect componentWillUnmount")
     }
 
     onDeleteAttachment(e, rowname, tableId) {
@@ -137,8 +136,8 @@ export class LogBug extends Component {
                     let removeButton = newRow.insertCell(1);
                     var btn = document.createElement(rowname + "button");
                     btn.type = "button";
-                    btn.className = "btn btn-primary";
-                    btn.style = "font-size: 0.5rem;"
+                    btn.className = "btn btn-primary LogBugButtons";
+                    btn.style = "font-size: 0.4rem;"
                     btn.textContent = "Remove Attachment"
                     btn.addEventListener("click", (e) => { this.onDeleteAttachment(e, rowname, tableId) });
                     removeButton.appendChild(btn);
@@ -166,7 +165,7 @@ export class LogBug extends Component {
         if (Severities.length > 0) {
             return (
                 <FormGroup>
-                    <label for="Severities" style={LabelStyling}>Please indicate how serious the issue is:</label><br />
+                    <label for="Severities" className= "LogBugLabels">Please indicate how serious the issue is:</label><br />
                     <Input type="select" name="select" id="Severities" className="LogBugButtons" >
                         {selectsev}
                     </Input>
@@ -278,32 +277,32 @@ export class LogBug extends Component {
             <div style={{ height: 'inherit'}}>
                 <Form onSubmit={e => this.submit(e)} id="LogBugForm" style={{ width: "inherit", height: '90%' }}> 
                     <Nav tabs>
-                        <NavItem>
-                            <NavLink className={classnames({ active: this.state.ActiveTab === '1' })}
+                        <NavItem className="nav-itemBug">
+                            <NavLink className={classnames({ active: this.state.ActiveTab === '1' }, 'nav-linkBug')}
                                 onClick={() => { this.changeTab('1'); }}>
                                 Description
                             </NavLink>
                         </NavItem>
-                        <NavItem>
-                            <NavLink className={classnames({ active: this.state.ActiveTab === '2' })}
+                        <NavItem className="nav-itemBug">
+                            <NavLink className={classnames({ active: this.state.ActiveTab === '2' }, 'nav-linkBug' )}
                                 onClick={() => { this.changeTab('2'); }}>
                                 Steps to recreate
                             </NavLink>
                         </NavItem>
-                        <NavItem>
-                            <NavLink className={classnames({ active: this.state.ActiveTab === '3' })}
+                        <NavItem className="nav-itemBug">
+                            <NavLink className={classnames({ active: this.state.ActiveTab === '3' }, 'nav-linkBug' )}
                                 onClick={() => { this.changeTab('3'); }}>
                                 Expected vs Actual 
                             </NavLink>
                         </NavItem>
-                        <NavItem>
-                            <NavLink className={classnames({ active: this.state.ActiveTab === '4' })}
+                        <NavItem className="nav-itemBug">
+                            <NavLink className={classnames({ active: this.state.ActiveTab === '4' }, 'nav-linkBug' )}
                                 onClick={() => { this.changeTab('4'); }}>
                                 Severity
                             </NavLink>
                         </NavItem> 
-                        <NavItem>
-                            <NavLink className={classnames({ active: this.state.ActiveTab === '5' })}
+                        <NavItem className="nav-itemBug">
+                            <NavLink className={classnames({ active: this.state.ActiveTab === '5'}, 'nav-linkBug' )}
                                 onClick={() => { this.changeTab('5'); }}>
                                 Attachments
                             </NavLink>

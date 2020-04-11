@@ -15,10 +15,10 @@ export class ExpectedActual extends Component {
                     <Col sm="12">
                         <div>
                             <FormGroup>
-                                <label for="ExpectedResult" className="LogDefectLabels">Please explain what you expected to happen</label><br />
-                                <Input type="textarea" name="text" id="ExpectedResult" className="LogDefectLabels" />
-                                <label for="ActualResult" className="LogDefectLabels">Please explain what actually happened</label><br />
-                                <Input type="textarea" name="text" id="ActualResult" className="LogDefectLabels" />
+                                <label for="ExpectedResult" className="LogBugLabels">Please explain what you expected to happen</label><br />
+                                <Input type="textarea" name="text" id="ExpectedResult" className="LogBugTextArea" />
+                                <label for="ActualResult" className="LogBugLabels">Please explain what actually happened</label><br />
+                                <Input type="textarea" name="text" id="ActualResult" className="LogBugTextArea" />
                             </FormGroup>
                         </div>
                     </Col>

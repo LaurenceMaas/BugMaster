@@ -8,5 +8,6 @@ namespace BugMaster.Models
 {
     public class ApplicationUser : IdentityUser
     {
+
     }
 }

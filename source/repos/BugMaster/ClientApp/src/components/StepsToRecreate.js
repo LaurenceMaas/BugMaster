@@ -26,8 +26,8 @@ export class StepsToRecreate extends Component {
                     <Col sm="12">
                         <div>
                             <FormGroup>
-                                <label for="StepsToRecreate" style={LabelStyling}>Please enter steps to recreate:</label><br />
-                                <Input type="textarea" name="StepsToRecreate" id="StepsToRecreate" style={StepstoRecreateStyling} />
+                                <label for="StepsToRecreate" className="LogBugLabels">Please enter steps to recreate:</label><br />
+                                <Input type="textarea" name="StepsToRecreate" id="StepsToRecreate" className="LogBugTextArea" />
                             </FormGroup>
                         </div>
                     </Col>

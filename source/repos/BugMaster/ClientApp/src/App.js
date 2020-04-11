@@ -4,6 +4,7 @@ import { Layout } from './components/Layout';
 import { RegisterLogin } from './components/RegisterLogin';
 import { LogDefect } from './components/LogDefect';
 import { LogBug } from './components/LogBug';
+import { SearchForABug } from './components/SearchForABug';
 import ApiAuthorizationRoutes from './components/api-authorization/ApiAuthorizationRoutes';
 import { ApplicationPaths } from './components/api-authorization/ApiAuthorizationConstants';
 import authService from './components/api-authorization/AuthorizeService';
@@ -43,6 +44,7 @@ export default class App extends Component
         return isAuthenticated === true ?
             <Layout>
                 <Route path='/LogBug' component={LogBug} />
+                <Route path='/SearchForABug' component={SearchForABug} />
                 <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
             </Layout> :
             <RegisterLogin>
