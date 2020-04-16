@@ -2,6 +2,7 @@
 import { Container, Row, Col, Input, InputGroup, InputGroupAddon, InputGroupText, Label,Table } from 'reactstrap';
 import './LogBug.css';
 import authService from './api-authorization/AuthorizeService';
+import { SearchResults } from './SearchResults';
 
 export class SearchForABug extends Component {
 
@@ -11,7 +12,10 @@ export class SearchForABug extends Component {
         this.state = {
             Users: [],
             Status: [],
-            BugResults: []
+            BugResults: {
+          },
+          rows: 0
+            
         }
     }
 
@@ -52,7 +56,8 @@ export class SearchForABug extends Component {
 
     createSelectElementWithDescription(optionData, selectId, className, descriptionField) {
         if (optionData.length > 0) {
-            let Select = optionData.map(option => (<option key={option.id} value={option.id}>{option[descriptionField]}</option>));
+            let Select = optionData.map(option => (<option key={option.id+1} value={option.id+1}>{option[descriptionField]}</option>));
+            Select.splice(0, 0, <option key={0} value={0}></option>) 
             return (
                 <Input type="select" name={selectId} id={selectId} className={className} >
                     {Select}
@@ -67,11 +72,76 @@ export class SearchForABug extends Component {
         }
     }
 
+    async findBigViaId(event, inputId, criteria) {
+      event.preventDefault();
+      let input = document.getElementById(inputId);
+      let request = ''
+
+      if (criteria === '') {
+        request = '/api/Defects/'  + input.value;
+      } else {
+        request = '/api/Defects' + '/' + criteria + '/' + input.value
+      }
+
+      authService.getAccessToken().then(token =>
+        fetch(request, {
+      method: 'GET', headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+      }))
+      .then(response => response.json())
+      .then(response => { this.setState({ BugResults: response })})    
+    }
+
+    PopulateResultsTable(tableId, tableData) {
+
+      let tableRef = document.getElementById(tableId);
+      console.log("this.state.rows",this.state.rows.)
+      if (tableRef !== null) {
+        if (tableRef.rows.length > 1) {
+          console.log("tableRef.rows.length", tableRef.rows.length)
+          for (var i = 1; i < tableRef.rows.length; i++) {
+            tableRef.deleteRow(i);
+          }
+        }
+      }
+
+      if (tableRef !== null && Array.isArray(tableData)) {
+
+        tableData.map(buginfo => {
+            let newRow = tableRef.insertRow(-1);
+            let BugIdVal = newRow.insertCell(0);
+            BugIdVal.innerHTML = buginfo.id;
+            BugIdVal.style = "font-size: 0.75rem;";
+
+            let BugShortDesVal = newRow.insertCell(1);
+            BugShortDesVal.innerHTML = buginfo.shortDescription;
+            BugShortDesVal.style = "font-size: 0.75rem;";
+
+          })
+
+        }
+
+        if (tableRef !== null && Number.isInteger(tableData.id) && !Array.isArray(tableData)) {
+
+            let newRow = tableRef.insertRow(-1);
+            let BugIdVal = newRow.insertCell(0);
+            BugIdVal.innerHTML = tableData.id;
+            BugIdVal.style = "font-size: 0.75rem;";
+
+            let BugShortDesVal = newRow.insertCell(1);
+            BugShortDesVal.innerHTML = tableData.shortDescription;
+            BugShortDesVal.style = "font-size: 0.75rem;";
+
+      }
+
+      this.setState({ rows: tableRef.rows.length})
+
+    }
 
     render() {
         let statusContents = this.createSelectElementWithDescription(this.state.Status, "StatusId","LogBugButtons","description");
         let assignedtoContents = this.createSelectElementWithDescription(this.state.Users, "AssignedTo", "LogBugButtons","userName");
         let loggedbyContents = this.createSelectElementWithDescription(this.state.Users, "LoggedBy", "LogBugButtons", "userName");
+        let CurrentSearchResults = document.getElementById("BugSearchResults")
 
         return (            
             <Container>
@@ -79,33 +149,35 @@ export class SearchForABug extends Component {
                 <Row xs="1">
                     <Col xs="7">
                         <InputGroup> 
-                            <InputGroupAddon addonType="prepend" style={{ height: '35px' }}>
-                                <InputGroupText style={{ backgroundColor: '#F05F44' }}>Bug Id:<i className="fas fa-search"></i></InputGroupText>
-                            </InputGroupAddon>
-                            <Input placeholder="Search.." style={{ height: '35px' }} />
-                        </InputGroup> 
+                          <InputGroupAddon addonType="prepend" style={{ height: '35px' }}>
+                            <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem' }}>Bug Id:</InputGroupText>
+                          </InputGroupAddon>
+                            <Input id="BugNo" name="BugNo" placeholder="Search.." style={{ height: '35px', fontSize: '0.8rem' }}/>
+                          <button type="submit" onClick={(e) => this.findBigViaId(e, "BugNo", "")}  name="SearchForBug" className="btn-primary LogBugButtons" style={{ marginLeft: '0px' }}  ><i className="fas fa-search"></i></button>
+                        </InputGroup>
+                        <br/>
                         <InputGroup> 
                             <InputGroupAddon addonType="prepend" style={{ height: '35px' }}>
-                                <InputGroupText style={{ backgroundColor: '#F05F44' }}><i className="fas fa-bug"></i>Short description:</InputGroupText>
+                              <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem'  }}>Short description:</InputGroupText>
                             </InputGroupAddon>
-                            <Input style={{ height: '35px' }} />
+                            <Input style={{ height: '35px' }} id="shortdescription" onKeyUp={(e) => this.findBigViaId(e, "shortdescription", "ShortDescription")}  />
                         </InputGroup>
                         <InputGroup>
                             <InputGroupAddon addonType="prepend" style={{ height: '35px' }}>
-                                <InputGroupText style={{ backgroundColor: '#F05F44' }}    ><i className="fas fa-bug"></i>Logged by:</InputGroupText>
+                              <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem'  }}>Logged by:</InputGroupText>
                             </InputGroupAddon>
                             {loggedbyContents}
                         </InputGroup>
                         <InputGroup>
                             <InputGroupAddon addonType="prepend" style={{ height: '35px' }}>
-                                <InputGroupText style={{ backgroundColor: '#F05F44' }}><i className="fas fa-bug"></i>Assigned to:</InputGroupText>
+                              <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem'  }}>Assigned to:</InputGroupText>
                             </InputGroupAddon>
                             {assignedtoContents}
                         </InputGroup>
 
                         <InputGroup>
                             <InputGroupAddon addonType="prepend" style={{ height: '35px' }}>
-                                <InputGroupText style={{ backgroundColor: '#F05F44' }}><i className="fas fa-bug"></i>Status:</InputGroupText>
+                              <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem'  }}>Status:</InputGroupText>
                             </InputGroupAddon>
                             {statusContents}
                         </InputGroup>
@@ -114,16 +186,7 @@ export class SearchForABug extends Component {
 
                     </Col>
                     <Col xs="5">
-                        <Table id="BugSearchResults" style={{ width: '80%' }} >
-                            <thead>
-                                <tr>
-                                    <th style={{ fontSize: "0.75rem", padding: "0.15rem" }}>Results</th>
-                                    <th>    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </Table>
+                      <SearchResults tabledata={this.state.BugResults} onChanged={this.PopulateResultsTable}  ></SearchResults>
                     </Col>
                 </Row>
              </Container>

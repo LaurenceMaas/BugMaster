@@ -21,7 +21,6 @@ export class Attachments extends Component {
     }
 
     render() {
-        console.log("this.props",this.props)
         return (
             <TabPane tabId={this.props.Id}>
                 <Row>

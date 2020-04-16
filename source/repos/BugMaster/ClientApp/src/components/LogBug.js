@@ -102,8 +102,6 @@ export class LogBug extends Component {
             }
         }
 
-        console.log("setFile = (e) => this.state.Attachments",this.state.Attachments)
-
     }
 
     onAddAttachment = (e, tableId, files) => {
@@ -204,7 +202,7 @@ export class LogBug extends Component {
         logformdata.append("CurrentStatusId", 1);
         logformdata.append("SeverityId", document.getElementById("Severities").value);
         this.state.Attachments.map(attach => logformdata.append("files", attach));
-        console.log("logformdata:",logformdata)
+
         authService.getAccessToken().then(token =>
             fetch('/api/Defects', { method: 'POST', body: logformdata },
                 { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } })).

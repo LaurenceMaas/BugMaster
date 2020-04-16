@@ -34,6 +34,7 @@ namespace BugMaster.Controllers
         [HttpGet]
         public IEnumerable<DefectDto> GetDefect()
         {
+
             var res = _context.Defect.ToList();
             return _context.Defect.ToList().Select(_mapper.Map<Defect, DefectDto>);
         }
@@ -67,7 +68,7 @@ namespace BugMaster.Controllers
                 return BadRequest(ModelState);
             }
 
-            var defect = await _context.Defect.Where(x => x.ShortDescription == shortDescription).ToListAsync();
+            var defect = await _context.Defect.Where(x => x.ShortDescription.Contains(shortDescription)).ToListAsync();
 
             if (defect == null)
             {
