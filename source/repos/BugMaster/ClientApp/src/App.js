@@ -4,6 +4,7 @@ import { Layout } from './components/Layout';
 import { RegisterLogin } from './components/RegisterLogin';
 import { LogDefect } from './components/LogDefect';
 import { LogBug } from './components/LogBug';
+import { EditBug } from './components/EditBug';
 import { SearchForABug } from './components/SearchForABug';
 import ApiAuthorizationRoutes from './components/api-authorization/ApiAuthorizationRoutes';
 import { ApplicationPaths } from './components/api-authorization/ApiAuthorizationConstants';
@@ -45,6 +46,7 @@ export default class App extends Component
             <Layout>
                 <Route path='/LogBug' component={LogBug} />
                 <Route path='/SearchForABug' component={SearchForABug} />
+                <Route path='/Editbug' component={EditBug} />
                 <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
             </Layout> :
             <RegisterLogin>

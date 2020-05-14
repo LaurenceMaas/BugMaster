@@ -18,7 +18,6 @@ export class LogDefectNotification extends Component {
     };
 
     render() {
-        console.log("this.props:",this.props)
         return(
             <div>
                 <Modal isOpen={this.state.ShowDialog} toggle={this.showModal}>

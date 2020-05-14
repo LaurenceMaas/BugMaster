@@ -8,7 +8,6 @@ using BugMaster.DTOs;
 using AutoMapper;
 using BugMaster.Data;
 using Microsoft.AspNetCore.Hosting;
-using System.Net.Http;
 using System;
 using System.IO;
 using System.Net.Http.Headers;
@@ -138,7 +137,7 @@ namespace BugMaster.Controllers
             return Ok(defect);
         }
 
-      // GET: api/Defects/AssignedTo/{usergid}
+      // GET: api/Defects/status/{usergid}
       [HttpGet("StatusId/{StatusId}")]
       public async Task<IActionResult> GetDefectFromStatusId([FromRoute] int statusId)
       {
