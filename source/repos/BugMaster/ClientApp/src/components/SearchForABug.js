@@ -50,8 +50,6 @@ export class SearchForABug extends Component {
 
         let selecttopopulate = document.getElementById(SelectId)
         selecttopopulate.length = 0;
-
-
         this.state.Users.map(user => this.creatOption(user.userName,selecttopopulate))
     }
 
@@ -138,7 +136,7 @@ export class SearchForABug extends Component {
         let statusContents = this.createSelectElementWithDescription(this.state.Status, "StatusId","LogBugButtons","description");
         let assignedtoContents = this.createSelectElementWithDescription(this.state.Users, "AssignedTo", "LogBugButtons","userName");
         let loggedbyContents = this.createSelectElementWithDescription(this.state.Users, "LoggedBy", "LogBugButtons", "userName");
-        let CurrentSearchResults = document.getElementById("BugSearchResults")
+        //let CurrentSearchResults = document.getElementById("BugSearchResults")
 
       return (
       
@@ -166,7 +164,7 @@ export class SearchForABug extends Component {
                 <Label className="LogBugLabels" style={{ textDecoration: 'none' }}>Or....by a combination of the following:</Label>
                 <InputGroup>
                   <InputGroupAddon addonType="prepend" style={{ height: '40px' }}>
-                  <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem'  }}>Logged by:</InputGroupText>
+                  <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem' }}>Logged by:</InputGroupText>
                   </InputGroupAddon>
                   {loggedbyContents}
                 </InputGroup>
@@ -180,7 +178,7 @@ export class SearchForABug extends Component {
 
                 <InputGroup>
                   <InputGroupAddon addonType="prepend" style={{ height: '40px' }}>
-                  <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem'  }}>Status:</InputGroupText>
+                  <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem' }}>Status:</InputGroupText>
                   </InputGroupAddon>
                   {statusContents}
                 </InputGroup>

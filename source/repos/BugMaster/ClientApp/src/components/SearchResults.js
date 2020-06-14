@@ -10,18 +10,24 @@ export class SearchResults extends Component {
     this.state = {
       ShowEditDialog: false,
       BugInfo: {},
-      UserName: ''
+      UserName: '',
+      RowNum: 0
     }
   }
 
   onActivateViewBug(rowNum) {
     console.log("rowNum", rowNum)
-    this.getBugDetails(rowNum)
-    this.setState({ ShowEditDialog: true })
+    if (rowNum && rowNum > 0)
+    {
+      this.getBugDetails(rowNum)
+      this.setState({ ShowEditDialog: true, RowNum: rowNum })
+    }
+    
   }
 
   onDeactivateViewBug = () => {
-    this.setState({ ShowEditDialog: false })
+    this.setState({ ShowEditDialog: false, BugInfo: {id:0} })
+ 
   }
 
   PopulateResultsTable(tableId, tableData) {
@@ -104,31 +110,16 @@ export class SearchResults extends Component {
       }))
       .then(response => response.json())
       .then(response => this.setState({ BugInfo: response }, () => {
-        console.log("callback this.state.BugInfo", this.state.BugInfo);
-        this.updateA(this.state.BugInfo)
       }))
 
-      console.log(this.state.BugInfo)
 
-
-  }
-
-  updateA(data) {
-    console.log("updateA")
-    this.setState({ BugInfo: data })
-
-  }
-
-  updateB() {
-    console.log("updateB")
   }
 
   render() {
-
-  this.PopulateResultsTable("BugSearchResults", this.props.tabledata)
-  return (
-    <div>
-      <Table id="BugSearchResults" style={{ width: '100%' }} onChange={this.PopulateResultsTable("BugSearchResults", this.props.tabledata)} >
+    this.PopulateResultsTable("BugSearchResults", this.props.tabledata)
+    return (
+      <div>
+        <Table id="BugSearchResults" style={{ width: '100%' }} onChange={this.PopulateResultsTable("BugSearchResults", this.props.tabledata)} >
         <thead>
           <tr>
             <th style={{ fontSize: "0.75rem", padding: "0.15rem" }}>BugId</th>
@@ -141,7 +132,7 @@ export class SearchResults extends Component {
       </Table>
       <EditBug ShowEditDialog={this.state.ShowEditDialog} BugInfo={this.state.BugInfo} onDeactivateViewBug={this.onDeactivateViewBug} ></EditBug>
     </div>
-  );
+    );
   }
 
 }
