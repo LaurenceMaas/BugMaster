@@ -136,7 +136,6 @@ export class SearchForABug extends Component {
         let statusContents = this.createSelectElementWithDescription(this.state.Status, "StatusId","LogBugButtons","description");
         let assignedtoContents = this.createSelectElementWithDescription(this.state.Users, "AssignedTo", "LogBugButtons","userName");
         let loggedbyContents = this.createSelectElementWithDescription(this.state.Users, "LoggedBy", "LogBugButtons", "userName");
-        //let CurrentSearchResults = document.getElementById("BugSearchResults")
 
       return (
       

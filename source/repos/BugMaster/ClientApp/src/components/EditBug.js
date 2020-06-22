@@ -18,13 +18,12 @@ export class EditBug extends Component {
 
     this.state = {
       UserName: '',
-      BugInfo: {}
+      LoggedBy: {}
     }
 
   }
 
   componentDidMount() {
-    console.log("in componentDidMount")
 
     if (this.props.ShowEditDialog === null) {
       this.props.ShowEditDialog = false
@@ -34,12 +33,12 @@ export class EditBug extends Component {
   hideResultModal = () => {
     this.setState({ ShowResultDialog: false });
   };
-  
+
 
   render() {
-    if (this.props.BugInfo || this.props.BugInfo.id > 0) {
+    if ((this.props.BugInfo.id > 0) && (this.props.LoggedBy[0])) {
       let BugTitle = "Edit bug id:" + this.props.BugInfo.id
-      console.log(this.props.BugInfo)
+      console.log("this.props", this.props.LoggedBy[0])
       return (
         <Modal isOpen={this.props.ShowEditDialog} toggle={this.props.ShowEditDialog} className="modal-contentEditBug" >
           <ModalHeader style={{ lineheight: "0.15", backgroundColor: "#F05F44", fontSize: "0.7rem" }}><h1 style={{ fontSize: "1.25rem" }}>{BugTitle}</h1></ModalHeader>
@@ -52,16 +51,24 @@ export class EditBug extends Component {
             </InputGroup>
             <InputGroup>
               <InputGroupAddon addonType="prepend" style={{ height: '35px' }}>
-                <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem' }}>Logged by:</InputGroupText>
+                <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem' }}>Steps to recreate</InputGroupText>
               </InputGroupAddon>
-              <Input style={{ height: '35px' }} id="LoggedBy" style={{ height: '35px', fontSize: '0.8rem' }} type="text" readOnly defaultValue={this.props.UserName} />
+              <Input style={{ height: '35px' }} id="LoggedBy" style={{ height: '35px', fontSize: '0.8rem' }} type="text" readOnly defaultValue={this.props.BugInfo.stepsToRecreate} />
             </InputGroup>
           </ModalBody>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend" style={{ height: '35px' }}>
+                <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem' }}>Logged by:</InputGroupText>
+              </InputGroupAddon>
+              <Input style={{ height: '35px' }} id="LoggedBy" style={{ height: '35px', fontSize: '0.8rem' }} type="text" readOnly defaultValue={this.props.LoggedBy[0].userName} />
+            </InputGroup>
           <ModalFooter>
             <Button className="btn btn-primary" style={AddattachmentStyling} onClick={this.props.onDeactivateViewBug}>Ok,got it!</Button>{' '}
           </ModalFooter>
         </Modal>
       );
+    } else {
+      return "";
     }
   }
 }

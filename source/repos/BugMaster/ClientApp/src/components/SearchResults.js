@@ -10,13 +10,13 @@ export class SearchResults extends Component {
     this.state = {
       ShowEditDialog: false,
       BugInfo: {},
-      UserName: '',
+      LoggedBy: {},
       RowNum: 0
     }
   }
 
   onActivateViewBug(rowNum) {
-    console.log("rowNum", rowNum)
+
     if (rowNum && rowNum > 0)
     {
       this.getBugDetails(rowNum)
@@ -26,8 +26,7 @@ export class SearchResults extends Component {
   }
 
   onDeactivateViewBug = () => {
-    this.setState({ ShowEditDialog: false, BugInfo: {id:0} })
- 
+    this.setState({ ShowEditDialog: false, BugInfo: { id: 0 }, LoggedBy: {} }) 
   }
 
   PopulateResultsTable(tableId, tableData) {
@@ -102,21 +101,38 @@ export class SearchResults extends Component {
 
   }
 
-  getBugDetails(bugId) {
+  getBugDetails(bugId)
+  {
+    console.log("in getBugDetails")
     let request = '/api/Defects/' + bugId
-    authService.getAccessToken().then(token =>
+    let token = authService.getAccessToken(); 
+
+    token.then(token =>
       fetch(request, {
         method: 'GET', headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
       }))
       .then(response => response.json())
-      .then(response => this.setState({ BugInfo: response }, () => {
-      }))
+      .then(response => {
+        this.setState({ BugInfo: response });
+        this.getLoggedBy(response.loggedbyId)
+      })
 
+  }
 
+  getLoggedBy(loggedById) {
+    let request = "/api/admin/usergid/" + loggedById;
+    let token = authService.getAccessToken(); 
+    
+    fetch(request, {
+    method: 'GET', headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+    })
+    .then(response =>  response.json())
+    .then(response => { this.setState({ LoggedBy: response });})
   }
 
   render() {
     this.PopulateResultsTable("BugSearchResults", this.props.tabledata)
+    console.log("this.state:",this.state)
     return (
       <div>
         <Table id="BugSearchResults" style={{ width: '100%' }} onChange={this.PopulateResultsTable("BugSearchResults", this.props.tabledata)} >
@@ -130,7 +146,7 @@ export class SearchResults extends Component {
         <tbody>
         </tbody>
       </Table>
-      <EditBug ShowEditDialog={this.state.ShowEditDialog} BugInfo={this.state.BugInfo} onDeactivateViewBug={this.onDeactivateViewBug} ></EditBug>
+        <EditBug LoggedBy={this.state.LoggedBy} ShowEditDialog={this.state.ShowEditDialog} BugInfo={this.state.BugInfo} onDeactivateViewBug={this.onDeactivateViewBug} ></EditBug>
     </div>
     );
   }
