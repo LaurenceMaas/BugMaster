@@ -1,8 +1,14 @@
 ﻿import './LogBug.css';
 import React, { Component } from 'react';
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, InputGroup, InputGroupAddon, InputGroupText, Label } from 'reactstrap';
-import './LogBug.css';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, NavLink, NavItem, Nav, TabContent } from 'reactstrap';
 import authService from './api-authorization/AuthorizeService';
+import { ShortDescription } from './ShortDescription';
+import { StepsToRecreate } from './StepsToRecreate';
+import { ExpectedActual } from './ExpectedActual';
+import { Severity } from './Severity';
+import { LogBug } from './LogBug';
+import './LogBug.css';
+import classnames from 'classnames';
 
 const AddattachmentStyling = {
   fontSize: "0.5rem",
@@ -18,7 +24,10 @@ export class EditBug extends Component {
 
     this.state = {
       UserName: '',
-      LoggedBy: {}
+      LoggedBy: {},
+      ActiveTab: '1',
+      Severities: [],
+      Loading: true
     }
 
   }
@@ -28,42 +37,109 @@ export class EditBug extends Component {
     if (this.props.ShowEditDialog === null) {
       this.props.ShowEditDialog = false
     }
+    authService.getAccessToken().then(token =>
+      fetch('/api/Severities', { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } }))
+      .then(response => response.json())
+      .then(response => this.setState({ Severities: response, Loading: false }))
+
   }
 
   hideResultModal = () => {
     this.setState({ ShowResultDialog: false });
   };
 
+  changeTab = (tab) => {
+    this.setState({ ActiveTab: tab })
+  }
+
+  BugInfoChanged = (id, changedElement, elementText) => {
+    console.log("in BugInfoChanged: ", elementText)
+    switch (changedElement) {
+      case "ShortDescription":
+        this.setState({ Newshortdescription: elementText });
+        break;
+
+      case "StepsToRecreate":
+        this.setState(() => {
+          return { Newstepstorecreate: elementText };
+        });
+        break;
+
+      case "newexpectedresult":
+        this.setState(() => {
+          return { Newexpectedresult: elementText };
+        });
+        break;
+
+      case "newactualresult":
+        this.setState(() => {
+          return { Newactualresult: elementText };
+        });
+        break;
+
+      default:
+
+    }
+    document.getElementById(id).style.visibility = "visible";
+
+  }
 
   render() {
+
+    let contents = LogBug.renderSeverities(this.state.Severities);
+
     if ((this.props.BugInfo.id > 0) && (this.props.LoggedBy[0])) {
+      console.log(this.props.BugInfo)
       let BugTitle = "Edit bug id:" + this.props.BugInfo.id
-      console.log("this.props", this.props.LoggedBy[0])
       return (
         <Modal isOpen={this.props.ShowEditDialog} toggle={this.props.ShowEditDialog} className="modal-contentEditBug" >
           <ModalHeader style={{ lineheight: "0.15", backgroundColor: "#F05F44", fontSize: "0.7rem" }}><h1 style={{ fontSize: "1.25rem" }}>{BugTitle}</h1></ModalHeader>
           <ModalBody style={{ whiteSpace: 'pre' }} >
-            <InputGroup>
-              <InputGroupAddon addonType="prepend" style={{ height: '35px' }}>
-                <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem' }}>Short description:</InputGroupText>
-              </InputGroupAddon>
-              <Input style={{ height: '35px' }} id="shortdescription" style={{ height: '35px', fontSize: '0.8rem' }} type="text" defaultValue={this.props.BugInfo.shortDescription} />
-            </InputGroup>
-            <InputGroup>
-              <InputGroupAddon addonType="prepend" style={{ height: '35px' }}>
-                <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem' }}>Steps to recreate</InputGroupText>
-              </InputGroupAddon>
-              <Input style={{ height: '35px' }} id="LoggedBy" style={{ height: '35px', fontSize: '0.8rem' }} type="text" readOnly defaultValue={this.props.BugInfo.stepsToRecreate} />
-            </InputGroup>
-          </ModalBody>
-            <InputGroup>
-              <InputGroupAddon addonType="prepend" style={{ height: '35px' }}>
-                <InputGroupText style={{ backgroundColor: '#F05F44', fontSize: '0.8rem' }}>Logged by:</InputGroupText>
-              </InputGroupAddon>
-              <Input style={{ height: '35px' }} id="LoggedBy" style={{ height: '35px', fontSize: '0.8rem' }} type="text" readOnly defaultValue={this.props.LoggedBy[0].userName} />
-            </InputGroup>
+            <Nav tabs>
+
+              <NavItem className="nav-itemBug">
+                <NavLink className={classnames({ active: this.state.ActiveTab === '1' }, 'nav-linkBug')}
+                  onClick={() => { this.changeTab('1'); }}>
+                  Description
+                </NavLink>
+              </NavItem>
+              <NavItem className="nav-itemBug">
+                <NavLink className={classnames({ active: this.state.ActiveTab === '2' }, 'nav-linkBug')}
+                  onClick={() => { this.changeTab('2'); }}>
+                  Steps to recreate
+                </NavLink>
+              </NavItem>
+              <NavItem className="nav-itemBug">
+                <NavLink className={classnames({ active: this.state.ActiveTab === '3' }, 'nav-linkBug')}
+                  onClick={() => { this.changeTab('3'); }}>
+                  Expected vs Actual
+                </NavLink>
+              </NavItem>
+              <NavItem className="nav-itemBug">
+                <NavLink className={classnames({ active: this.state.ActiveTab === '4' }, 'nav-linkBug')}
+                  onClick={() => { this.changeTab('4'); }}>
+                   Severity
+                </NavLink>
+              </NavItem>
+            </Nav>
+
+            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+              <ShortDescription ExistingText={this.props.BugInfo.shortDescription} onChange={this.BugInfoChanged} Id="1"></ShortDescription>
+            </TabContent>
+            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+              <StepsToRecreate ExistingText={this.props.BugInfo.stepsToRecreate} onChange={this.BugInfoChanged} Id="2"></StepsToRecreate>
+            </TabContent>
+            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+              <ExpectedActual ExistingActualResults={this.props.BugInfo.actualResult} ExistingExpectedResults={this.props.BugInfo.expectedResult} onChange={this.BugInfoChanged} Id="3"></ExpectedActual>
+            </TabContent>
+            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+              <Severity Id="4" Contents={contents}></Severity>
+            </TabContent>
+
+          </ModalBody>            
           <ModalFooter>
-            <Button className="btn btn-primary" style={AddattachmentStyling} onClick={this.props.onDeactivateViewBug}>Ok,got it!</Button>{' '}
+            <Button id="SaveButton" className="btn btn-primary" style={{ fontSize: "0.5rem", marginLeft: '20px', marginTop: '20px', display: 'inline-block', visibility: 'hidden' }} onClick={this.props.onSave}>Save</Button>{' '}
+            <Button className="btn btn-primary" style={AddattachmentStyling} onClick={this.props.onDeactivateViewBug}>Close</Button>{' '}
           </ModalFooter>
         </Modal>
       );

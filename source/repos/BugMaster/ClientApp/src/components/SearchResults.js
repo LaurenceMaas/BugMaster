@@ -11,8 +11,13 @@ export class SearchResults extends Component {
       ShowEditDialog: false,
       BugInfo: {},
       LoggedBy: {},
-      RowNum: 0
+      RowNum: 0,
+      Newshortdescription: "",
+      Newstepstorecreate: "",
+      Newexpectedresult: "",
+      Newactualresult:""
     }
+
   }
 
   onActivateViewBug(rowNum) {
@@ -130,9 +135,13 @@ export class SearchResults extends Component {
     .then(response => { this.setState({ LoggedBy: response });})
   }
 
+  OnSaveClicked = () => {
+
+    console.log("in OnSaveClicked this.state: ",this.state)
+  }
+
   render() {
     this.PopulateResultsTable("BugSearchResults", this.props.tabledata)
-    console.log("this.state:",this.state)
     return (
       <div>
         <Table id="BugSearchResults" style={{ width: '100%' }} onChange={this.PopulateResultsTable("BugSearchResults", this.props.tabledata)} >
@@ -146,7 +155,7 @@ export class SearchResults extends Component {
         <tbody>
         </tbody>
       </Table>
-        <EditBug LoggedBy={this.state.LoggedBy} ShowEditDialog={this.state.ShowEditDialog} BugInfo={this.state.BugInfo} onDeactivateViewBug={this.onDeactivateViewBug} ></EditBug>
+        <EditBug LoggedBy={this.state.LoggedBy} ShowEditDialog={this.state.ShowEditDialog} BugInfo={this.state.BugInfo} onDeactivateViewBug={this.onDeactivateViewBug} onSave={this.OnSaveClicked}></EditBug>
     </div>
     );
   }

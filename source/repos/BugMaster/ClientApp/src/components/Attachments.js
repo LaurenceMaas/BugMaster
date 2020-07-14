@@ -9,16 +9,8 @@ const AddattachmentStyling = {
     marginTop: '20px',
     display: 'inline-block',
 }
-const LabelStyling = {
-    textDecoration: "underline",
-    fontSize: "0.75rem"
-}
 
 export class Attachments extends Component {
-
-    constructor(props) {
-        super(props);
-    }
 
     render() {
         return (

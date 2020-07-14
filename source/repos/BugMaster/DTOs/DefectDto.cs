@@ -22,7 +22,8 @@ namespace BugMaster.DTOs
         public string AssignToId { get; set; }
         public int CurrentStatusId { get; set; }
         public int SeverityId { get; set; }        
-        public ICollection<IFormFile> files { get; set; }
+        public ICollection<IFormFile> Attachments { get; set; }
+        public ICollection<NoteDto> Notes { get; set; }
 
-    }
+  }
 }

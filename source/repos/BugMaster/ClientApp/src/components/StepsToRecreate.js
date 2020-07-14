@@ -2,37 +2,40 @@
 import './LogBug.css';
 import React, { Component } from 'react';
 
-const StepstoRecreateStyling = {
-    width: "882px",
-    fontSize: "0.75rem",
-    height: "5.0rem"
-}
-
-const LabelStyling = {
-    textDecoration: "underline",
-    fontSize: "0.75rem"
-}
 
 export class StepsToRecreate extends Component {
-
-    constructor(props) {
-        super(props);
+  NewOrExistingRender = (ExistingText) => {
+    if (ExistingText === "") {
+      return (
+        <FormGroup>
+          <label for="StepsToRecreate" className="LogBugLabels">Please enter steps to recreate:</label><br />
+          <Input type="textarea" name="StepsToRecreate" id="StepsToRecreate" className="LogBugTextArea" />
+        </FormGroup>)
+    } else {
+      return (
+      <FormGroup>
+          <Input type="textarea" name="text" id="StepsToRecreate" className="LogBugTextArea" defaultValue={ExistingText} onChange={() => { this.props.onChange("SaveButton", "StepsToRecreate", document.getElementById("StepsToRecreate").value) }} />
+       </FormGroup>
+      )
     }
 
-    render() {
-        return (
-            <TabPane tabId={this.props.Id}>
-                <Row>
-                    <Col sm="12">
-                        <div>
-                            <FormGroup>
-                                <label for="StepsToRecreate" className="LogBugLabels">Please enter steps to recreate:</label><br />
-                                <Input type="textarea" name="StepsToRecreate" id="StepsToRecreate" className="LogBugTextArea" />
-                            </FormGroup>
-                        </div>
-                    </Col>
-                </Row>
-            </TabPane>
-        );
-    }
+  }
+
+
+  render() {
+    let neworexisting = this.NewOrExistingRender(this.props.ExistingText)
+    return (
+      <TabPane tabId={this.props.Id}>
+        <Row>
+          <Col sm="12">
+            <div>
+              <FormGroup>
+                {neworexisting}
+               </FormGroup>
+             </div>
+          </Col>
+        </Row>
+      </TabPane>
+    );
+  }
 }

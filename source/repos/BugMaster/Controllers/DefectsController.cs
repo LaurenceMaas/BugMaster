@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using System;
 using System.IO;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Http;
 
 namespace BugMaster.Controllers
 {
@@ -33,28 +34,31 @@ namespace BugMaster.Controllers
         [HttpGet]
         public IEnumerable<DefectDto> GetDefect()
         {
-
-            var res = _context.Defect.ToList();
-            return _context.Defect.ToList().Select(_mapper.Map<Defect, DefectDto>);
+          var res = _context.Defect.ToList();
+          return _context.Defect.ToList().Select(_mapper.Map<Defect, DefectDto>);
         }
 
         // GET: api/Defects/5
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetDefectFromId([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+          object test =new object();
 
-            var defect = await _context.Defect.FindAsync(id);
+          if (!ModelState.IsValid)
+          {
+            return BadRequest(ModelState);
+          }
 
-            if (defect == null)
-            {
-                return NotFound();
-            }
+          var defect = await _context.Defect.FindAsync(id);
 
-            return Ok(defect);
+          if (defect == null)
+          {
+            return NotFound();
+          }
+
+          CreatedAtAction("GetAttachmentFromBugId", "AttachmentsController", new { id = defect.Id }, defect);
+
+          return Ok(defect);
         }
 
         // GET: api/Defects/ShortDescription
@@ -62,19 +66,19 @@ namespace BugMaster.Controllers
         public async Task<IActionResult> GetDefectFromShortDescription([FromRoute] string shortDescription)
         {
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+          if (!ModelState.IsValid)
+          {
+            return BadRequest(ModelState);
+          }
 
-            var defect = await _context.Defect.Where(x => x.ShortDescription.Contains(shortDescription)).ToListAsync();
+          var defect = await _context.Defect.Where(x => x.ShortDescription.Contains(shortDescription)).ToListAsync();
 
-            if (defect == null)
-            {
-                return NotFound();
-            }
+          if (defect == null)
+          {
+            return NotFound();
+          }
 
-            return Ok(defect);
+          return Ok(defect);
         }
 
         // GET: api/Defects/StepsToRecreate
@@ -82,19 +86,19 @@ namespace BugMaster.Controllers
         public async Task<IActionResult> GetDefectFromStepsToRecreate([FromRoute] string stepsToRecreate)
         {
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+          if (!ModelState.IsValid)
+          {
+            return BadRequest(ModelState);
+          }
 
-            var defect = await _context.Defect.Where(x => x.StepsToRecreate == stepsToRecreate).ToListAsync();
+          var defect = await _context.Defect.Where(x => x.StepsToRecreate == stepsToRecreate).ToListAsync();
 
-            if (defect == null)
-            {
-                return NotFound();
-            }
+          if (defect == null)
+          {
+            return NotFound();
+          }
 
-            return Ok(defect);
+          return Ok(defect);
         }
 
         // GET: api/Defects/LoggedBy/{usergid}
@@ -102,19 +106,19 @@ namespace BugMaster.Controllers
         public async Task<IActionResult> GetDefectFromLoggedBy([FromRoute] string loggedById)
         {
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+          if (!ModelState.IsValid)
+          {
+            return BadRequest(ModelState);
+          }
 
-            var defect = await _context.Defect.Where(x => x.LoggedbyId == loggedById).ToListAsync();
+          var defect = await _context.Defect.Where(x => x.LoggedbyId == loggedById).ToListAsync();
 
-            if (defect == null)
-            {
-                return NotFound();
-            }
+          if (defect == null)
+          {
+            return NotFound();
+          }
 
-            return Ok(defect);
+          return Ok(defect);
         }
 
         // GET: api/Defects/AssignedTo/{usergid}
@@ -122,43 +126,43 @@ namespace BugMaster.Controllers
         public async Task<IActionResult> GetDefectFromAssignedTo([FromRoute] string assignedToId)
         {
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+          if (!ModelState.IsValid)
+          {
+            return BadRequest(ModelState);
+          }
 
-            var defect = await _context.Defect.Where(x => x.AssignToId == assignedToId).ToListAsync();
+          var defect = await _context.Defect.Where(x => x.AssignToId == assignedToId).ToListAsync();
 
-            if (defect == null)
-            {
-                return NotFound();
-            }
+          if (defect == null)
+          {
+            return NotFound();
+          }
 
-            return Ok(defect);
+          return Ok(defect);
         }
 
-      // GET: api/Defects/status/{usergid}
-      [HttpGet("StatusId/{StatusId}")]
-      public async Task<IActionResult> GetDefectFromStatusId([FromRoute] int statusId)
-      {
-
-        if (!ModelState.IsValid)
+        // GET: api/Defects/status/{usergid}
+        [HttpGet("StatusId/{StatusId}")]
+        public async Task<IActionResult> GetDefectFromStatusId([FromRoute] int statusId)
         {
-          return BadRequest(ModelState);
+
+          if (!ModelState.IsValid)
+          {
+            return BadRequest(ModelState);
+          }
+
+          var defect = await _context.Defect.Where(x => x.CurrentStatusId  == statusId).ToListAsync();
+
+          if (defect == null)
+          {
+            return NotFound();
+          }
+
+          return Ok(defect);
         }
 
-        var defect = await _context.Defect.Where(x => x.CurrentStatusId  == statusId).ToListAsync();
-
-        if (defect == null)
-        {
-          return NotFound();
-        }
-
-        return Ok(defect);
-      }
-
-    // GET: api/Defects/Criteria/{LoggedByGID}/{StatusId}/{AssignedToGID}
-    [HttpGet("Criteria/{LoggedByGID}/{StatusId}/{AssignedToGID}")]
+        // GET: api/Defects/Criteria/{LoggedByGID}/{StatusId}/{AssignedToGID}
+        [HttpGet("Criteria/{LoggedByGID}/{StatusId}/{AssignedToGID}")]
         public async Task<IActionResult> GetDefectFromCriteria([FromRoute] string loggedByGID, [FromRoute] int statusId, string assignedToGID)
         {
           if (!ModelState.IsValid)
@@ -184,111 +188,129 @@ namespace BugMaster.Controllers
         // PUT: api/Defects/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDefect([FromRoute] int id, [FromBody] DefectDto defectdto)
+        {
+          if (!ModelState.IsValid)
           {
-              if (!ModelState.IsValid)
-              {
-                  return BadRequest(ModelState);
-              }
-
-              if (id != defectdto.Id)
-              {
-                  return BadRequest();
-              }
-
-              var defecttoModify = _context.Defect.SingleOrDefault(c => c.Id == id);
-              _mapper.Map<DefectDto, Defect>(defectdto, defecttoModify);
-
-              _context.Entry(defecttoModify).State = EntityState.Modified;
-
-              try
-              {
-
-                  await _context.SaveChangesAsync();
-              }
-              catch (DbUpdateConcurrencyException)
-              {
-                  if (!DefectExists(id))
-                  {
-                      return NotFound();
-                  }
-                  else
-                  {
-                      throw;
-                  }
-              }
-
-              return NoContent();
+            return BadRequest(ModelState);
           }
 
-          // POST: api/Defects
-          [HttpPost]
-          public async Task<IActionResult> PostDefect([FromForm] DefectDto defectdto)
+          if (id != defectdto.Id)
           {
-              string contentRootPath = Path.Combine(_hostingEnvironment.ContentRootPath , "AppData\\Attachments");
+            return BadRequest();
+          }
 
-              if (!ModelState.IsValid)
-              {
-                  return BadRequest(ModelState);
-              }
+          var defecttoModify = _context.Defect.SingleOrDefault(c => c.Id == id);
+          _mapper.Map<DefectDto, Defect>(defectdto, defecttoModify);
+
+          _context.Entry(defecttoModify).State = EntityState.Modified;
+
+          try
+          {
+            await _context.SaveChangesAsync();
+          }
+          catch (DbUpdateConcurrencyException)
+          {
+            if (!DefectExists(id))
+            {
+              return NotFound();
+            }
+            else
+            {
+              throw;
+            }
+          }
+
+          return NoContent();
+        }
+
+        // POST: api/Defects
+        [HttpPost]
+        public async Task<IActionResult> PostDefect([FromForm] DefectDto defectdto, 
+          [FromForm(Name = "files")] ICollection<IFormFile> attachments, 
+          [FromForm(Name = "notes")] ICollection<string> notes)
+        {
+          string contentRootPath = Path.Combine(_hostingEnvironment.ContentRootPath , "AppData\\Attachments");
+
+          if (!ModelState.IsValid)
+          {
+            return BadRequest(ModelState);
+          }
             
-              var defecttoAdd = _mapper.Map<DefectDto, Defect>(defectdto);
+          var defecttoAdd = _mapper.Map<DefectDto, Defect>(defectdto);
 
-              _context.Defect.Add(defecttoAdd);
-              await _context.SaveChangesAsync();
+          _context.Defect.Add(defecttoAdd);
+          await _context.SaveChangesAsync();
 
-
-              if (defectdto.files != null)
-              {
-                  foreach (var file in defectdto.files)
-                  {
-                      if (file.Length > 0)
-                      {
-                          Guid uniqueFilename = Guid.NewGuid();
-                          var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
-                          fileName = fileName.Replace(".", uniqueFilename + ".");
-                          await file.CopyToAsync(new FileStream(Path.Combine(contentRootPath, fileName), FileMode.Create));
-
-                          var DefectAttachmentToadd = new AttachmentDto
-                          {
-                              Path = "AppData\\Attachments\\" + fileName,
-                              DefectId = defecttoAdd.Id
-                          };
-                          var attachmentToAdd = _mapper.Map<AttachmentDto, Attachment>(DefectAttachmentToadd);
-
-                          _context.Attachment.Add(attachmentToAdd);
-                          await _context.SaveChangesAsync();
-
-                      }
-                  }
-              }
-
-              return CreatedAtAction("GetDefectFromId", new { id = defecttoAdd.Id }, defecttoAdd);
-          }
-
-          // DELETE: api/Defects/5
-          [HttpDelete("{id}")]
-          public async Task<IActionResult> DeleteDefect([FromRoute] int id)
+          if (attachments != null)
           {
-              if (!ModelState.IsValid)
+            foreach (var file in attachments)
+            {
+              if (file.Length > 0)
               {
-                  return BadRequest(ModelState);
+                Guid uniqueFilename = Guid.NewGuid();
+                var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+                fileName = fileName.Replace(".", uniqueFilename + ".");
+                await file.CopyToAsync(new FileStream(Path.Combine(contentRootPath, fileName), FileMode.Create));
+
+                var DefectAttachmentToadd = new AttachmentDto
+                {
+                  Path = "AppData\\Attachments\\" + fileName,
+                  DefectId = defecttoAdd.Id
+                };
+                var attachmentToAdd = _mapper.Map<AttachmentDto, Attachment>(DefectAttachmentToadd);
+
+                _context.Attachment.Add(attachmentToAdd);
+                await _context.SaveChangesAsync();
+
               }
-
-              var defect = await _context.Defect.FindAsync(id);
-              if (defect == null)
-              {
-                  return NotFound();
-              }
-
-              _context.Defect.Remove(defect);
-              await _context.SaveChangesAsync();
-
-              return Ok(defect);
+            }
           }
 
-          private bool DefectExists(int id)
+          if(notes != null)
           {
-              return _context.Defect.Any(e => e.Id == id);
+            foreach (var note in notes)
+            {
+              var NoteToAddDto = new NoteDto
+              {
+                AddedbyId = defecttoAdd.LoggedbyId,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now,
+                Text = note,
+                DefectId = defecttoAdd.Id
+              };
+              var NoteToAdd = _mapper.Map<NoteDto, Note>(NoteToAddDto);
+              _context.Note.Add(NoteToAdd);
+              await _context.SaveChangesAsync();
+            }
           }
+
+          return CreatedAtAction("GetDefectFromId", new { id = defecttoAdd.Id }, defecttoAdd);
+        }
+
+        // DELETE: api/Defects/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteDefect([FromRoute] int id)
+        {
+          if (!ModelState.IsValid)
+          {
+            return BadRequest(ModelState);
+          }
+
+          var defect = await _context.Defect.FindAsync(id);
+          if (defect == null)
+          {
+            return NotFound();
+          }
+
+          _context.Defect.Remove(defect);
+          await _context.SaveChangesAsync();
+
+          return Ok(defect);
+        }
+
+        private bool DefectExists(int id)
+        {
+          return _context.Defect.Any(e => e.Id == id);
+        }
       }
 }

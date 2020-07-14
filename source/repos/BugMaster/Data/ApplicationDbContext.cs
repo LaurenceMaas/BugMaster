@@ -21,25 +21,25 @@ namespace BugMaster.Data
         //public DbSet<BugMaster.Models.User> User { get; set; }
 
         public DbSet<BugMaster.Models.Status> Status { get; set; }
-        public DbSet<BugMaster.Models.Comment> Comment { get; set; }
+        public DbSet<BugMaster.Models.Note> Comment { get; set; }
         public DbSet<BugMaster.Models.Defect> Defect { get; set; }
         public DbSet<BugMaster.Models.AuditTrail> AuditTrail { get; set; }
         public DbSet<BugMaster.Models.Severity> Severity { get; set; }
         public DbSet<BugMaster.Models.Attachment> Attachment { get; set; }
+        public DbSet<BugMaster.Models.Note> Note { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-                modelBuilder.Entity<Defect>()
-                .HasMany(b => b.Comments)
-                .WithOne(e => e.Defect);
+            modelBuilder.Entity<Defect>()
+            .HasMany(b => b.Notes)
+            .WithOne(e => e.Defect);
 
-                modelBuilder.Entity<Defect>()
-                .HasMany(b => b.Attachments)
-                .WithOne(e => e.Defect);
+            modelBuilder.Entity<Defect>()
+            .HasMany(b => b.Attachments)
+            .WithOne(e => e.Defect);
 
         }
-
-
     }
 }

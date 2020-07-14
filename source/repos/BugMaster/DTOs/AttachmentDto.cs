@@ -11,6 +11,8 @@ namespace BugMaster.DTOs
 
         public int Id { get; set; }
 
+        public DateTime LastModified { get; set; }
+
         public string Path { get; set; }
 
         public int DefectId { get; set; }

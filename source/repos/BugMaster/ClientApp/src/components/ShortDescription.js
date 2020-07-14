@@ -4,24 +4,36 @@ import React, { Component } from 'react';
 
 export class ShortDescription extends Component {
 
-    constructor(props) {
-        super(props);
+  NewOrExistingRender = (ExistingText) => {
+    if (ExistingText === "") {
+      return (
+        <FormGroup>
+          <label for="ShortDescription" className="LogBugLabels">Please enter a brief description of what the problem is:</label><br />
+          <Input type="textarea" name="text" id="ShortDescription" className="LogBugTextArea"/>
+        </FormGroup>
+      )
+    } else {
+      return (
+        <FormGroup>
+          <Input type="textarea" name="text" id="ShortDescription" className="LogBugTextArea" defaultValue={ExistingText} onChange={() => { this.props.onChange("SaveButton", "ShortDescription", document.getElementById("ShortDescription").value) }}/>
+        </FormGroup>
+      )
     }
 
-    render() {
-        return (
-            <TabPane tabId={this.props.Id}>
-                <Row>
-                    <Col sm="12">
-                        <div>
-                            <FormGroup>
-                                <label for="ShortDescription" className="LogBugLabels">Please enter a brief description of what the problem is:</label><br />
-                                <Input type="textarea" name="text" id="ShortDescription" className="LogBugTextArea" />
-                            </FormGroup>
-                        </div>
-                    </Col>
-                </Row>
-            </TabPane>
-        );
-    }
+  }
+
+  render() {
+    let neworexisting = this.NewOrExistingRender(this.props.ExistingText)
+    return (
+      <TabPane tabId={this.props.Id}>
+        <Row>
+          <Col sm="12">
+            <div>
+              {neworexisting}
+            </div>
+          </Col>
+        </Row>        
+      </TabPane>
+    );
+  }
 }

@@ -23,14 +23,14 @@ namespace BugMaster.Controllers
 
         // GET: api/Comments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Comment>>> GetComment()
+        public async Task<ActionResult<IEnumerable<Note>>> GetComment()
         {
             return await _context.Comment.ToListAsync();
         }
 
         // GET: api/Comments/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Comment>> GetComment(int id)
+        public async Task<ActionResult<Note>> GetComment(int id)
         {
             var comment = await _context.Comment.FindAsync(id);
 
@@ -46,7 +46,7 @@ namespace BugMaster.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutComment(int id, Comment comment)
+        public async Task<IActionResult> PutComment(int id, Note comment)
         {
             if (id != comment.Id)
             {
@@ -78,7 +78,7 @@ namespace BugMaster.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Comment>> PostComment(Comment comment)
+        public async Task<ActionResult<Note>> PostComment(Note comment)
         {
             _context.Comment.Add(comment);
             await _context.SaveChangesAsync();
@@ -88,7 +88,7 @@ namespace BugMaster.Controllers
 
         // DELETE: api/Comments/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Comment>> DeleteComment(int id)
+        public async Task<ActionResult<Note>> DeleteComment(int id)
         {
             var comment = await _context.Comment.FindAsync(id);
             if (comment == null)

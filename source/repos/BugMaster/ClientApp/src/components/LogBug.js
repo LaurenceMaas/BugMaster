@@ -6,26 +6,9 @@ import { ShortDescription } from './ShortDescription';
 import { StepsToRecreate } from './StepsToRecreate';
 import { Severity } from './Severity';
 import { ExpectedActual } from './ExpectedActual';
+import { Notes } from './Notes';
 import './LogBug.css';
 import classnames from 'classnames';
-
-
-const ShortDescriptionStyling = {
-    width: "882px",
-    fontSize: "0.75rem",
-    height: "2.0rem"
-}
-
-const StepstoRecreateStyling = {
-    width: "882px",
-    fontSize: "0.75rem",
-    height: "5.0rem"
-}
-
-const LabelStyling = {
-    textDecoration: "underline",
-    fontSize: "0.75rem"
-}
 
 const AddattachmentStyling = {
     fontSize: "0.5rem",
@@ -44,6 +27,7 @@ export class LogBug extends Component {
             Severities: [],
             Loading: true,
             Attachments: [],
+            Notes: [],
             ShowLogDefectDialog: true,
             Response: null,
             ShowResultDialog: false,
@@ -81,81 +65,120 @@ export class LogBug extends Component {
 
     }
 
-    getFiles = (files) => {
+    onRemoveNote(e, rowname, tableId) {
 
-        var attachmentFiles = []
+      e.preventDefault();
+      let rowtoRemove = document.getElementById(rowname)
+      let noteToRemove = this.state.Notes.find(element => element.name === rowtoRemove.cells[0].textContent)
 
-        for (var i = 0; i < files.length; i++) {
-
-            if (!this.state.Attachments.find(element => element.name === files[i].name)) {
-                attachmentFiles.push(files[i])
-            }
-        }
-        return attachmentFiles;
+      rowtoRemove.remove();
+      this.state.Notes.splice(this.state.Notes.indexOf(noteToRemove), 1)
     }
 
-    setFile = (e) => {
-        for (var i = 0; i < e.target.files.length; i++) {
+  getFiles = (files) => {
+    var attachmentFiles = []
+    for (var i = 0; i < files.length; i++) {
+      if (!this.state.Attachments.find(element => element.name === files[i].name)) {
+        attachmentFiles.push(files[i])
+      }
+    }
+    return attachmentFiles;
+  }
 
-            if (!this.state.Attachments.find(element => element.name === e.target.files[i].name)) {
-                this.state.Attachments.push(e.target.files[i])
-            }
-        }
+  setFile = (e) => {
+    for (var i = 0; i < e.target.files.length; i++) {
 
+      if (!this.state.Attachments.find(element => element.name === e.target.files[i].name)) {
+        this.state.Attachments.push(e.target.files[i])
+      }
     }
 
-    onAddAttachment = (e, tableId, files) => {
-        e.preventDefault();
+  }
 
-        //Get a reference to the table
-        let tableRef = document.getElementById(tableId);
+  onAddNote = (e, tableId, Note) => {
+    e.preventDefault();
+    let tableRef = document.getElementById(tableId);
+    let noteRef = document.getElementById(Note);
 
-        if (tableRef != null) {
-            files.map((file) => {
-                let isFound = false
+    if (noteRef.value !== "")
+    {
 
-                for (var i = 0; i < tableRef.rows.length; i++) {
-                    if (tableRef.rows[i].cells[0].textContent === file.name) {
-                        isFound = true
-                    }
+      if (tableRef != null) {
+        let newRow = tableRef.insertRow(-1);
 
-                }
+        let NoteVal = newRow.insertCell(0);
+        NoteVal.innerHTML = noteRef.value;
+        NoteVal.style = "font-size: 0.75rem;";
 
-                if (isFound === false) {
-                    let newRow = tableRef.insertRow(-1);
+        let rowname = "removeNote" + (tableRef.rows.length - 1)
+        newRow.id = rowname
 
-                    let fileNameVal = newRow.insertCell(0);
-                    fileNameVal.innerHTML = file.name;
-                    fileNameVal.style = "font-size: 0.75rem;";
-
-                    let rowname = "removeAttachment" + (tableRef.rows.length - 1)
-                    newRow.id = rowname
-
-                    let removeButton = newRow.insertCell(1);
-                    var btn = document.createElement(rowname + "button");
-                    btn.type = "button";
-                    btn.className = "btn btn-primary LogBugButtons";
-                    btn.style = "font-size: 0.4rem;"
-                    btn.textContent = "Remove Attachment"
-                    btn.addEventListener("click", (e) => { this.onDeleteAttachment(e, rowname, tableId) });
-                    removeButton.appendChild(btn);
-                }
-            })
-        }
-
+        let removeButton = newRow.insertCell(1);
+        var btn = document.createElement(rowname + "button");
+        btn.type = "button";
+        btn.className = "btn btn-primary LogBugButtons";
+        btn.style = "font-size: 0.4rem;"
+        btn.textContent = "Remove note"
+        btn.addEventListener("click", (e) => { this.onRemoveNote(e, rowname, tableId) });
+        removeButton.appendChild(btn);
+      }
+      this.state.Notes.push(noteRef.value)
+      noteRef.value = ""
     }
+  }
 
-    async populateState() {
-        const [user] = await Promise.all([authService.getUser()])
-        this.setState({
-            userName: user && user.name,
-            userId: user.sub,
-            Severities: [],
-            Loading: true,
-            Attachments: [],
-            ShowDialog: true
-        });
-    }
+  onAddAttachment = (e, tableId, files) => {
+      e.preventDefault();
+
+      //Get a reference to the table
+      let tableRef = document.getElementById(tableId);
+
+      if (tableRef != null) {
+          files.map((file) => {
+              let isFound = false
+
+              for (var i = 0; i < tableRef.rows.length; i++) {
+                  if (tableRef.rows[i].cells[0].textContent === file.name) {
+                      isFound = true
+                  }
+
+              }
+
+              if (isFound === false) {
+                  let newRow = tableRef.insertRow(-1);
+
+                  let fileNameVal = newRow.insertCell(0);
+                  fileNameVal.innerHTML = file.name;
+                  fileNameVal.style = "font-size: 0.75rem;";
+
+                  let rowname = "removeAttachment" + (tableRef.rows.length - 1)
+                  newRow.id = rowname
+
+                  let removeButton = newRow.insertCell(1);
+                  var btn = document.createElement(rowname + "button");
+                  btn.type = "button";
+                  btn.className = "btn btn-primary LogBugButtons";
+                  btn.style = "font-size: 0.4rem;"
+                  btn.textContent = "Remove Attachment"
+                  btn.addEventListener("click", (e) => { this.onDeleteAttachment(e, rowname, tableId) });
+                  removeButton.appendChild(btn);
+              }
+          })
+      }
+
+  }
+
+  async populateState() {
+      const [user] = await Promise.all([authService.getUser()])
+      this.setState({
+          userName: user && user.name,
+          userId: user.sub,
+          Severities: [],
+          Loading: true,
+          Attachments: [],
+          ShowDialog: true
+      });
+  }
 
     static renderSeverities(Severities) {
 
@@ -178,7 +201,7 @@ export class LogBug extends Component {
         }
     }
 
-    populateSeverities() {
+    populateSeverities () {
 
         authService.getAccessToken().then(token =>
             fetch('/api/Severities', { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } }))
@@ -202,11 +225,14 @@ export class LogBug extends Component {
         logformdata.append("CurrentStatusId", 1);
         logformdata.append("SeverityId", document.getElementById("Severities").value);
         this.state.Attachments.map(attach => logformdata.append("files", attach));
+        this.state.Notes.map(note => logformdata.append("Notes", note));
+        console.log("logformdata.getAll(files)", logformdata.getAll("Notes"))
+
 
         authService.getAccessToken().then(token =>
             fetch('/api/Defects', { method: 'POST', body: logformdata },
-                { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } })).
-            then(response => response.json())
+              { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } }))
+            .then(response => response.json())
             .then(response => {
                 this.setState({ Response: response })
                 this.setState({ ShowResultDialog: true })
@@ -226,9 +252,10 @@ export class LogBug extends Component {
                             tableRef.deleteRow(i);
                         }
 
-                    } else if (this.state.Response.errors.StepsToRecreate || this.state.Response.errors.ShortDescription || this.state.Response.errors.ExpectedResults || 
-                        this.state.Response.errors.ActualResult) {
-
+                    } else if (this.state.Response.errors.StepsToRecreate
+                      || this.state.Response.errors.ShortDescription
+                      || this.state.Response.errors.ExpectedResults
+                      || this.state.Response.errors.ActualResult) {
                         this.setState({
                             ModalTitle: "Oops!",
                             ModalContent: "It seems you didn't fill one or more of the following fields:\nSteps to recreate\nExpected Results\nActual Results\nWe need them to log your bug"
@@ -263,7 +290,6 @@ export class LogBug extends Component {
     }
 
     render() {
-        const { userName } = this.state;
         let contents = LogBug.renderSeverities(this.state.Severities);
         let response = this.state.Response
 
@@ -305,13 +331,20 @@ export class LogBug extends Component {
                                 Attachments
                             </NavLink>
                         </NavItem>   
+                        <NavItem className="nav-itemBug">
+                          <NavLink className={classnames({ active: this.state.ActiveTab === '6' }, 'nav-linkBug')}
+                            onClick={() => { this.changeTab('6'); }}>
+                            Notes
+                          </NavLink>
+                        </NavItem> 
                     </Nav>
                     <TabContent activeTab={this.state.ActiveTab} className= "TabContent">
-                        <ShortDescription Id= "1"></ShortDescription>
-                        <StepsToRecreate Id="2"></StepsToRecreate>
-                        <ExpectedActual Id="3"></ExpectedActual>
+                        <ShortDescription ExistingText= "" Id= "1"></ShortDescription>
+                        <StepsToRecreate ExistingText= "" Id="2"></StepsToRecreate>
+                        <ExpectedActual ExistingActualResults="" ExistingExpectedResults="" Id="3"></ExpectedActual>
                         <Severity Id="4" Contents={contents}></Severity>
                         <Attachments Id="5" setFile={this.setFile} onAddAttachment={this.onAddAttachment} attachmentfiles={this.state.Attachments}></Attachments>     
+                        <Notes Id="6" onAddNote={this.onAddNote}></Notes>     
                     </TabContent>
                     <div>
                         <button type="submit" name="LogBug" className="btn btn-primary LogBugButtons" style={{ float: 'right', marginTop: '50px' }}>{this.state.Logbug}</button>

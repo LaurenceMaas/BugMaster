@@ -15,6 +15,8 @@ namespace BugMaster.DTOs
             CreateMap<DefectDto, Defect>();
             CreateMap<Attachment, AttachmentDto>();
             CreateMap<AttachmentDto,Attachment>();
-        }
+            CreateMap<NoteDto, Note>();
+            CreateMap<Note, NoteDto>();
+    }
     }
 }

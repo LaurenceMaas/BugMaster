@@ -18,107 +18,121 @@ namespace BugMaster.Controllers
     [ApiController]
     public class AttachmentsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
+      private readonly ApplicationDbContext _context;
+      private readonly IMapper _mapper;
 
-        public AttachmentsController(ApplicationDbContext context, IMapper mapper)
+      public AttachmentsController(ApplicationDbContext context, IMapper mapper)
+      {
+          _context = context;
+          _mapper = mapper;
+      }
+
+      // GET: api/Attachments
+      [HttpGet]
+      public async Task<ActionResult<IEnumerable<Attachment>>> GetAttachment()
+      {
+        return await _context.Attachment.ToListAsync();
+      }
+        
+      // GET: api/Attachments/5
+      [HttpGet("{id}")]
+      public async Task<ActionResult<Attachment>> GetAttachment(int id)
+      {
+        var attachment = await _context.Attachment.FindAsync(id);
+
+        if (attachment == null)
         {
-            _context = context;
-            _mapper = mapper;
+          return NotFound();
         }
 
-        // GET: api/Attachments
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Attachment>>> GetAttachment()
+        return attachment;
+      }
+
+      // GET: api/Attachments/BugId/5
+      [HttpGet("BugId/{BugId}")]
+      public async Task<IActionResult> GetAttachmentFromBugId(int bugid)
+      {
+        var defectforattachment = await _context.Attachment.Where(x => x.DefectId == bugid).ToListAsync();
+          
+        if (defectforattachment == null)
         {
-            return await _context.Attachment.ToListAsync();
+          return NotFound();
         }
 
-        // GET: api/Attachments/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Attachment>> GetAttachment(int id)
+        return Ok(defectforattachment.ElementAtOrDefault(0));
+      }
+
+      // PUT: api/Attachments/5
+      // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+      // more details see https://aka.ms/RazorPagesCRUD.
+      [HttpPut("{id}")]
+      public async Task<IActionResult> PutAttachment(int id, Attachment attachment)
+      {
+        if (id != attachment.Id)
         {
-            var attachment = await _context.Attachment.FindAsync(id);
-
-            if (attachment == null)
-            {
-                return NotFound();
-            }
-
-            return attachment;
+          return BadRequest();
         }
 
-        // PUT: api/Attachments/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAttachment(int id, Attachment attachment)
+        _context.Entry(attachment).State = EntityState.Modified;
+
+        try
         {
-            if (id != attachment.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(attachment).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AttachmentExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+          await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+          if (!AttachmentExists(id))
+          {
+            return NotFound();
+          }
+          else
+          {
+            throw;
+          }
         }
 
-        // POST: api/Attachments
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPost]
-        public async Task<ActionResult<Attachment>> PostAttachment([FromBody] AttachmentDto attachmentDto)
-        {
+        return NoContent();
+      }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+      // POST: api/Attachments
+      // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+      // more details see https://aka.ms/RazorPagesCRUD.
+      [HttpPost]
+      public async Task<ActionResult<Attachment>> PostAttachment([FromBody] AttachmentDto attachmentDto)
+      {
 
-            var attachmentToAdd = _mapper.Map<AttachmentDto, Attachment>(attachmentDto);
+          if (!ModelState.IsValid)
+          {
+              return BadRequest(ModelState);
+          }
 
-            _context.Attachment.Add(attachmentToAdd);
-            await _context.SaveChangesAsync();
+          var attachmentToAdd = _mapper.Map<AttachmentDto, Attachment>(attachmentDto);
 
-            return CreatedAtAction("GetAttachment", new { id = attachmentToAdd.Id }, attachmentToAdd);
-        }
+          _context.Attachment.Add(attachmentToAdd);
+          await _context.SaveChangesAsync();
 
-        // DELETE: api/Attachments/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Attachment>> DeleteAttachment(int id)
-        {
-            var attachment = await _context.Attachment.FindAsync(id);
-            if (attachment == null)
-            {
-                return NotFound();
-            }
+          return CreatedAtAction("GetAttachment", new { id = attachmentToAdd.Id }, attachmentToAdd);
+      }
 
-            _context.Attachment.Remove(attachment);
-            await _context.SaveChangesAsync();
+      // DELETE: api/Attachments/5
+      [HttpDelete("{id}")]
+      public async Task<ActionResult<Attachment>> DeleteAttachment(int id)
+      {
+          var attachment = await _context.Attachment.FindAsync(id);
+          if (attachment == null)
+          {
+              return NotFound();
+          }
 
-            return attachment;
-        }
+          _context.Attachment.Remove(attachment);
+          await _context.SaveChangesAsync();
 
-        private bool AttachmentExists(int id)
-        {
-            return _context.Attachment.Any(e => e.Id == id);
-        }
+          return attachment;
+      }
+
+      private bool AttachmentExists(int id)
+      {
+        return _context.Attachment.Any(e => e.Id == id);
+      }
     }
 }

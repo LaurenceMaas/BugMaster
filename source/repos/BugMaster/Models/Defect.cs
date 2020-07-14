@@ -24,7 +24,7 @@ namespace BugMaster.Models
         public string AssignToId { get; set; }
         public Status CurrentStatus { get; set; }
         public int CurrentStatusId { get; set; }
-        public ICollection<Comment> Comments { get; set; }
+        public ICollection<Note> Notes { get; set; }
         public Severity Severity { get; set; }
         public int SeverityId { get; set; }
         public ICollection<Attachment> Attachments { get; set; }
