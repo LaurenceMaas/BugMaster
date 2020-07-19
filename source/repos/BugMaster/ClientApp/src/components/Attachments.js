@@ -11,6 +11,10 @@ const AddattachmentStyling = {
 }
 
 export class Attachments extends Component {
+    //NewOrExistingRender = (fileList) =>
+    //{
+    //  if (fileList.Length > 0)
+    //}
 
     render() {
         return (

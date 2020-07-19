@@ -50,22 +50,23 @@ namespace BugMaster.Controllers
 
       // GET: api/Attachments/BugId/5
       [HttpGet("BugId/{BugId}")]
-      public async Task<IActionResult> GetAttachmentFromBugId(int bugid)
+      public async Task<ActionResult<IEnumerable<Attachment>>> GetAttachmentFromBugId(int bugid)
       {
         var defectforattachment = await _context.Attachment.Where(x => x.DefectId == bugid).ToListAsync();
-          
+
         if (defectforattachment == null)
         {
           return NotFound();
         }
 
-        return Ok(defectforattachment.ElementAtOrDefault(0));
+        return defectforattachment;
       }
 
-      // PUT: api/Attachments/5
-      // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-      // more details see https://aka.ms/RazorPagesCRUD.
-      [HttpPut("{id}")]
+
+    // PUT: api/Attachments/5
+    // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+    // more details see https://aka.ms/RazorPagesCRUD.
+    [HttpPut("{id}")]
       public async Task<IActionResult> PutAttachment(int id, Attachment attachment)
       {
         if (id != attachment.Id)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BugMaster.Models
 {
-    public class Defect
+    public class Bug
     {
         [Key]
         public int Id { get; set; }

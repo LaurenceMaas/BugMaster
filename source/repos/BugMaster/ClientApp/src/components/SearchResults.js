@@ -108,8 +108,7 @@ export class SearchResults extends Component {
 
   getBugDetails(bugId)
   {
-    console.log("in getBugDetails")
-    let request = '/api/Defects/' + bugId
+    let request = '/api/Bugs/' + bugId
     let token = authService.getAccessToken(); 
 
     token.then(token =>

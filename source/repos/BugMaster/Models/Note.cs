@@ -16,6 +16,6 @@ namespace BugMaster.Models
       public DateTime UpdatedDate { get; set; }
       public string Text { get; set; }
       public int DefectId { get; set; }
-      public Defect Defect { get; set; }
+      public Bug Defect { get; set; }
     }
 }

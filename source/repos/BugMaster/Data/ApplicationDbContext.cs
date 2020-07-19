@@ -22,7 +22,7 @@ namespace BugMaster.Data
 
         public DbSet<BugMaster.Models.Status> Status { get; set; }
         public DbSet<BugMaster.Models.Note> Comment { get; set; }
-        public DbSet<BugMaster.Models.Defect> Defect { get; set; }
+        public DbSet<BugMaster.Models.Bug> Defect { get; set; }
         public DbSet<BugMaster.Models.AuditTrail> AuditTrail { get; set; }
         public DbSet<BugMaster.Models.Severity> Severity { get; set; }
         public DbSet<BugMaster.Models.Attachment> Attachment { get; set; }
@@ -32,11 +32,11 @@ namespace BugMaster.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Defect>()
+            modelBuilder.Entity<Bug>()
             .HasMany(b => b.Notes)
             .WithOne(e => e.Defect);
 
-            modelBuilder.Entity<Defect>()
+            modelBuilder.Entity<Bug>()
             .HasMany(b => b.Attachments)
             .WithOne(e => e.Defect);
 

@@ -77,9 +77,9 @@ export class SearchForABug extends Component {
       let request = ''
 
       if (criteria === '') {
-        request = '/api/Defects/'  + input.value;
+        request = '/api/Bugs/'  + input.value;
       } else {
-        request = '/api/Defects' + '/' + criteria + '/' + input.value
+        request = '/api/Bugs' + '/' + criteria + '/' + input.value
       }
 
       authService.getAccessToken().then(token =>
@@ -102,15 +102,15 @@ export class SearchForABug extends Component {
 
       //by status only
       if (inputLoggedBy.value === '0' && inputLoggedBy.value === '0' && inputAssignedTo.value === '0' ) {
-        request = '/api/Defects/StatusId/' + inputStatusId.value 
+        request = '/api/Bugs/StatusId/' + inputStatusId.value 
       //by logged by only
       } else if (inputLoggedBy.value !== '0' && inputStatusId.value === '0' && inputAssignedTo.value === '0') {
-        request = '/api/Defects/LoggedBy/' + inputLoggedBy.value 
+        request = '/api/Bugs/LoggedBy/' + inputLoggedBy.value 
       //by assigned to only
       } else if (inputAssignedTo.value !== '0' && inputStatusId.value === '0' && inputLoggedBy.value === '0') {
-        request = '/api/Defects/AssignedTo/' + inputAssignedTo.value   
+        request = '/api/Bugs/AssignedTo/' + inputAssignedTo.value   
       } else {
-        request = '/api/Defects/Criteria/' + inputLoggedBy.value + '/' + inputStatusId.value + '/' + inputAssignedToValue
+        request = '/api/Bugs/Criteria/' + inputLoggedBy.value + '/' + inputStatusId.value + '/' + inputAssignedToValue
       }
 
       authService.getAccessToken().then(token =>

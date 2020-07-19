@@ -1,9 +1,11 @@
-﻿import { Row, Col, TabPane } from 'reactstrap';
+﻿import { Row, Col, TabPane} from 'reactstrap';
 import './LogBug.css';
 import React, { Component } from 'react';
 
+
 export class Severity extends Component {
-    render() {
+
+  render() {
         return (
             <TabPane tabId={this.props.Id}>
                 <Row>

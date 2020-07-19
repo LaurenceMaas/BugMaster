@@ -6,6 +6,7 @@ import { ShortDescription } from './ShortDescription';
 import { StepsToRecreate } from './StepsToRecreate';
 import { ExpectedActual } from './ExpectedActual';
 import { Severity } from './Severity';
+import { Attachments } from './Attachments';
 import { LogBug } from './LogBug';
 import './LogBug.css';
 import classnames from 'classnames';
@@ -37,6 +38,9 @@ export class EditBug extends Component {
     if (this.props.ShowEditDialog === null) {
       this.props.ShowEditDialog = false
     }
+
+    this.changeTab('1')
+
     authService.getAccessToken().then(token =>
       fetch('/api/Severities', { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } }))
       .then(response => response.json())
@@ -85,11 +89,10 @@ export class EditBug extends Component {
   }
 
   render() {
-
-    let contents = LogBug.renderSeverities(this.state.Severities);
-
+    
     if ((this.props.BugInfo.id > 0) && (this.props.LoggedBy[0])) {
-      console.log(this.props.BugInfo)
+      let contents = LogBug.renderSeverities(this.state.Severities, (this.props.BugInfo.severityId-1));
+      console.log("this.props.BugInfo:", this.props.BugInfo)
       let BugTitle = "Edit bug id:" + this.props.BugInfo.id
       return (
         <Modal isOpen={this.props.ShowEditDialog} toggle={this.props.ShowEditDialog} className="modal-contentEditBug" >
@@ -121,6 +124,12 @@ export class EditBug extends Component {
                    Severity
                 </NavLink>
               </NavItem>
+              <NavItem className="nav-itemBug">
+                <NavLink className={classnames({ active: this.state.ActiveTab === '5' }, 'nav-linkBug')}
+                  onClick={() => { this.changeTab('5'); }}>
+                  Attachments
+                </NavLink>
+              </NavItem>
             </Nav>
 
             <TabContent activeTab={this.state.ActiveTab} className="TabContent">
@@ -134,6 +143,9 @@ export class EditBug extends Component {
             </TabContent>
             <TabContent activeTab={this.state.ActiveTab} className="TabContent">
               <Severity Id="4" Contents={contents}></Severity>
+            </TabContent>
+            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+              <Attachments Id="5" Contents={contents}></Attachments>
             </TabContent>
 
           </ModalBody>            

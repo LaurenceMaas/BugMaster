@@ -11,8 +11,8 @@ namespace BugMaster.DTOs
     {
         public AutoMapping()
         {
-            CreateMap<Defect, DefectDto>();
-            CreateMap<DefectDto, Defect>();
+            CreateMap<Bug, BugDto>();
+            CreateMap<BugDto, Bug>();
             CreateMap<Attachment, AttachmentDto>();
             CreateMap<AttachmentDto,Attachment>();
             CreateMap<NoteDto, Note>();

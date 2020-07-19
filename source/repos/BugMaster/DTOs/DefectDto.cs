@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BugMaster.DTOs
 {
-    public class DefectDto
+    public class BugDto
     {
         public int Id { get; set; }
         [Required]
@@ -22,7 +22,7 @@ namespace BugMaster.DTOs
         public string AssignToId { get; set; }
         public int CurrentStatusId { get; set; }
         public int SeverityId { get; set; }        
-        public ICollection<IFormFile> Attachments { get; set; }
+        public ICollection<AttachmentDto> Attachments { get; set; }
         public ICollection<NoteDto> Notes { get; set; }
 
   }

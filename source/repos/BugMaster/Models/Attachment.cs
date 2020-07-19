@@ -12,7 +12,9 @@ namespace BugMaster.Models
 
         public string Path { get; set; }
 
-        public Defect Defect { get; set; }
+        public string FileName { get; set; }
+
+        public Bug Defect { get; set; }
 
         public int DefectId { get; set; }
     }

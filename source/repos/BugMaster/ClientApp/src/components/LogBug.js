@@ -180,10 +180,17 @@ export class LogBug extends Component {
       });
   }
 
-    static renderSeverities(Severities) {
+    static renderSeverities(Severities, selectedIndex = 0) {
 
-        let selectsev = Severities.map(severity => (<option key={severity.id} value={severity.id}>{severity.description}</option>));
-        if (Severities.length > 0) {
+      let selectsev = Severities.map((severity, i) => {
+        if (i === selectedIndex) {
+          return <option key={severity.id} selected value={severity.id}>{severity.description}</option>
+        } else {
+          return <option key={severity.id} value={severity.id}>{severity.description}</option>  
+        }
+      })
+
+      if (Severities.length > 0) {
             return (
                 <FormGroup>
                     <label for="Severities" className= "LogBugLabels">Please indicate how serious the issue is:</label><br />
@@ -193,11 +200,11 @@ export class LogBug extends Component {
                 </FormGroup>
             );
         } else {
-            return (
-                <select>
-                    <option value="1">Loading..</option>
-                </select>
-            );
+          return (
+              <select>
+                  <option value="1">Loading..</option>
+              </select>
+          );
         }
     }
 
@@ -226,11 +233,10 @@ export class LogBug extends Component {
         logformdata.append("SeverityId", document.getElementById("Severities").value);
         this.state.Attachments.map(attach => logformdata.append("files", attach));
         this.state.Notes.map(note => logformdata.append("Notes", note));
-        console.log("logformdata.getAll(files)", logformdata.getAll("Notes"))
 
 
         authService.getAccessToken().then(token =>
-            fetch('/api/Defects', { method: 'POST', body: logformdata },
+            fetch('/api/Bugs', { method: 'POST', body: logformdata },
               { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } }))
             .then(response => response.json())
             .then(response => {
@@ -298,7 +304,7 @@ export class LogBug extends Component {
         }
 
         return (
-            <div style={{ height: 'inherit'}}>
+          <div style={{ height: 'inherit' }}>
                 <Form onSubmit={e => this.submit(e)} id="LogBugForm" style={{ width: "inherit", height: '90%' }}> 
                     <Nav tabs>
                         <NavItem className="nav-itemBug">
@@ -356,7 +362,7 @@ export class LogBug extends Component {
                             </ModalFooter>
                         </Modal> 
                     </div>
-                </Form> 
+              </Form>
             </div>
         );
     }

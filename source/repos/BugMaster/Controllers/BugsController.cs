@@ -12,18 +12,21 @@ using System;
 using System.IO;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
+using System.Net.Http;
+using FSharp.Data;
+using System.Collections.ObjectModel;
 
 namespace BugMaster.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DefectsController : ControllerBase
+    public class BugsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public DefectsController(ApplicationDbContext context, IMapper mapper, IWebHostEnvironment Environment)
+        public BugsController(ApplicationDbContext context, IMapper mapper, IWebHostEnvironment Environment)
         {
             _context = context;
             _mapper = mapper;
@@ -32,18 +35,20 @@ namespace BugMaster.Controllers
 
         // GET: api/Defects
         [HttpGet]
-        public IEnumerable<DefectDto> GetDefect()
+        public IEnumerable<BugDto> GetDefect()
         {
           var res = _context.Defect.ToList();
-          return _context.Defect.ToList().Select(_mapper.Map<Defect, DefectDto>);
+          return _context.Defect.ToList().Select(_mapper.Map<Bug, BugDto>);
         }
 
         // GET: api/Defects/5
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetDefectFromId([FromRoute] int id)
         {
-          object test =new object();
-
+          var BugsClient = new HttpClient();
+          ICollection<Attachment> attachments = new Collection<Attachment>();
+          ICollection<Note> notes = new Collection<Note>();
+          
           if (!ModelState.IsValid)
           {
             return BadRequest(ModelState);
@@ -56,9 +61,44 @@ namespace BugMaster.Controllers
             return NotFound();
           }
 
-          CreatedAtAction("GetAttachmentFromBugId", "AttachmentsController", new { id = defect.Id }, defect);
+          BugsClient.BaseAddress = new Uri(@"https://" + HttpContext.Request.Host.ToString());
+          BugsClient.DefaultRequestHeaders.Accept.Clear();
+          BugsClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(HttpContentTypes.Any));
 
-          return Ok(defect);
+          // HTTP GET
+          var response = BugsClient.GetAsync("/api/Attachments/BugId/" + id.ToString()).Result;
+
+          if (response.IsSuccessStatusCode)
+          {
+            var data = response.Content.ReadAsAsync<IEnumerable<Attachment>>().Result;
+            foreach (var attachment in data)
+            {                
+                attachments.Add(attachment);
+            }
+
+          }
+
+          defect.Attachments = attachments;
+
+          // HTTP GET
+          response = BugsClient.GetAsync("/api/Notes/BugId/" + id.ToString()).Result;
+
+          if (response.IsSuccessStatusCode)
+          {
+            var data = response.Content.ReadAsAsync<IEnumerable<Note>>().Result;
+            foreach (var note in data)
+            {
+              notes.Add(note);
+            }
+
+          }
+
+          defect.Notes = notes;
+
+
+          var defecttoAdd = _mapper.Map<Bug,BugDto>(defect);
+
+          return Ok(defecttoAdd);
         }
 
         // GET: api/Defects/ShortDescription
@@ -187,7 +227,7 @@ namespace BugMaster.Controllers
 
         // PUT: api/Defects/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDefect([FromRoute] int id, [FromBody] DefectDto defectdto)
+        public async Task<IActionResult> PutDefect([FromRoute] int id, [FromBody] BugDto defectdto)
         {
           if (!ModelState.IsValid)
           {
@@ -200,7 +240,7 @@ namespace BugMaster.Controllers
           }
 
           var defecttoModify = _context.Defect.SingleOrDefault(c => c.Id == id);
-          _mapper.Map<DefectDto, Defect>(defectdto, defecttoModify);
+          _mapper.Map<BugDto, Bug>(defectdto, defecttoModify);
 
           _context.Entry(defecttoModify).State = EntityState.Modified;
 
@@ -225,18 +265,18 @@ namespace BugMaster.Controllers
 
         // POST: api/Defects
         [HttpPost]
-        public async Task<IActionResult> PostDefect([FromForm] DefectDto defectdto, 
+        public async Task<IActionResult> PostDefect([FromForm] BugDto defectdto, 
           [FromForm(Name = "files")] ICollection<IFormFile> attachments, 
           [FromForm(Name = "notes")] ICollection<string> notes)
         {
-          string contentRootPath = Path.Combine(_hostingEnvironment.ContentRootPath , "AppData\\Attachments");
+          string contentRootPath = Path.Combine(_hostingEnvironment.ContentRootPath , @"AppData\Attachments");
 
           if (!ModelState.IsValid)
           {
             return BadRequest(ModelState);
           }
             
-          var defecttoAdd = _mapper.Map<DefectDto, Defect>(defectdto);
+          var defecttoAdd = _mapper.Map<BugDto, Bug>(defectdto);
 
           _context.Defect.Add(defecttoAdd);
           await _context.SaveChangesAsync();
@@ -255,6 +295,7 @@ namespace BugMaster.Controllers
                 var DefectAttachmentToadd = new AttachmentDto
                 {
                   Path = "AppData\\Attachments\\" + fileName,
+                  FileName = file.FileName,
                   DefectId = defecttoAdd.Id
                 };
                 var attachmentToAdd = _mapper.Map<AttachmentDto, Attachment>(DefectAttachmentToadd);

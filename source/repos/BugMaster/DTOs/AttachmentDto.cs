@@ -13,6 +13,8 @@ namespace BugMaster.DTOs
 
         public DateTime LastModified { get; set; }
 
+        public string FileName { get; set; }
+
         public string Path { get; set; }
 
         public int DefectId { get; set; }
