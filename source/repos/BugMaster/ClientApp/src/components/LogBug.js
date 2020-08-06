@@ -6,6 +6,7 @@ import { ShortDescription } from './ShortDescription';
 import { StepsToRecreate } from './StepsToRecreate';
 import { Severity } from './Severity';
 import { ExpectedActual } from './ExpectedActual';
+import { onAddAttachment } from './AttachmentLibrary';
 import { Notes } from './Notes';
 import './LogBug.css';
 import classnames from 'classnames';
@@ -35,7 +36,8 @@ export class LogBug extends Component {
             ModalContent: "",
             ActiveTab :'1',
             Logbug : "log bug"
-        };
+      };    
+
     }
 
     componentDidMount() {
@@ -46,23 +48,6 @@ export class LogBug extends Component {
 
     componentWillUnmount() {
         authService.unsubscribe(this._subscription);
-    }
-
-    onDeleteAttachment(e, rowname, tableId) {
-
-        e.preventDefault();
-        let rowtoRemove = document.getElementById(rowname)
-        let tableToUpdate = document.getElementById(tableId)
-        let attachmentToRemove = this.state.Attachments.find(element => element.name === rowtoRemove.cells[0].textContent)
-
-        rowtoRemove.remove();
-        this.state.Attachments.splice(this.state.Attachments.indexOf(attachmentToRemove), 1)
-
-        if (tableToUpdate.rows.length === 1) {
-            document.getElementById("AttachmentFile").value = ""
-        }
-
-
     }
 
     onRemoveNote(e, rowname, tableId) {
@@ -125,47 +110,6 @@ export class LogBug extends Component {
       this.state.Notes.push(noteRef.value)
       noteRef.value = ""
     }
-  }
-
-  onAddAttachment = (e, tableId, files) => {
-      e.preventDefault();
-
-      //Get a reference to the table
-      let tableRef = document.getElementById(tableId);
-
-      if (tableRef != null) {
-          files.map((file) => {
-              let isFound = false
-
-              for (var i = 0; i < tableRef.rows.length; i++) {
-                  if (tableRef.rows[i].cells[0].textContent === file.name) {
-                      isFound = true
-                  }
-
-              }
-
-              if (isFound === false) {
-                  let newRow = tableRef.insertRow(-1);
-
-                  let fileNameVal = newRow.insertCell(0);
-                  fileNameVal.innerHTML = file.name;
-                  fileNameVal.style = "font-size: 0.75rem;";
-
-                  let rowname = "removeAttachment" + (tableRef.rows.length - 1)
-                  newRow.id = rowname
-
-                  let removeButton = newRow.insertCell(1);
-                  var btn = document.createElement(rowname + "button");
-                  btn.type = "button";
-                  btn.className = "btn btn-primary LogBugButtons";
-                  btn.style = "font-size: 0.4rem;"
-                  btn.textContent = "Remove Attachment"
-                  btn.addEventListener("click", (e) => { this.onDeleteAttachment(e, rowname, tableId) });
-                  removeButton.appendChild(btn);
-              }
-          })
-      }
-
   }
 
   async populateState() {
@@ -349,8 +293,8 @@ export class LogBug extends Component {
                         <StepsToRecreate ExistingText= "" Id="2"></StepsToRecreate>
                         <ExpectedActual ExistingActualResults="" ExistingExpectedResults="" Id="3"></ExpectedActual>
                         <Severity Id="4" Contents={contents}></Severity>
-                        <Attachments Id="5" setFile={this.setFile} onAddAttachment={this.onAddAttachment} attachmentfiles={this.state.Attachments}></Attachments>     
-                        <Notes Id="6" onAddNote={this.onAddNote}></Notes>     
+                        <Attachments Id="5" setFile={this.setFile} onAddAttachment={onAddAttachment} attachmentfiles={this.state.Attachments} NewOrExisting={true}></Attachments>     
+                        <Notes Id="6" onAddNote={this.onAddNote} NewOrExisting={true}></Notes>     
                     </TabContent>
                     <div>
                         <button type="submit" name="LogBug" className="btn btn-primary LogBugButtons" style={{ float: 'right', marginTop: '50px' }}>{this.state.Logbug}</button>

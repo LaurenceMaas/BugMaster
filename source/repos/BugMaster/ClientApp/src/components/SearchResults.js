@@ -134,9 +134,17 @@ export class SearchResults extends Component {
     .then(response => { this.setState({ LoggedBy: response });})
   }
 
-  OnSaveClicked = () => {
 
-    console.log("in OnSaveClicked this.state: ",this.state)
+  shouldComponentUpdate()
+  {
+    if (this.state.BugInfo.isArray) {
+      return true
+    } else if (this.state.BugInfo !== 0) {
+      return true
+    } else
+    {
+      return false
+    }
   }
 
   render() {

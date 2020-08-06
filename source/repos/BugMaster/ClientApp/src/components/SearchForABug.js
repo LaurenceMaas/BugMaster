@@ -122,7 +122,8 @@ export class SearchForABug extends Component {
 
     }
 
-    ClearCriteria(event) {
+  ClearCriteria(event)
+  {
       event.preventDefault();
       document.getElementById("LoggedBy").value = 0;
       document.getElementById("AssignedTo").value = 0;
@@ -131,6 +132,7 @@ export class SearchForABug extends Component {
       document.getElementById("shortdescription").value = "";
 
   }
+
 
     render() {
         let statusContents = this.createSelectElementWithDescription(this.state.Status, "StatusId","LogBugButtons","description");
@@ -185,7 +187,7 @@ export class SearchForABug extends Component {
                 <button type="submit" name="ClearSearch" className="btn-primary LogBugButtons" onClick={(e) => this.ClearCriteria(e)} style={{ marginLeft: '0px', marginTop: '10px', height: '35px', width: '45px', float: 'right', marginRight: '10px' }}  ><i className="fas fa-eraser"></i></button>               
               </Col>
               <Col xs="5">
-                <SearchResults tabledata={this.state.BugResults} ></SearchResults>              
+                  <SearchResults tabledata={this.state.BugResults} ></SearchResults>         
               </Col>
               </Row>
              </Container>

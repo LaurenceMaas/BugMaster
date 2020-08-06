@@ -11,28 +11,33 @@ const AddattachmentStyling = {
 }
 
 export class Attachments extends Component {
-    //NewOrExistingRender = (fileList) =>
-    //{
-    //  if (fileList.Length > 0)
-    //}
 
-    render() {
-        return (
-            <TabPane tabId={this.props.Id}>
-                <Row>
-                    <Col sm="12">
-                        <FormGroup>
-                            <FormText color="muted">Do you need to add any attachments like a screenshot? Add them here</FormText>
-                            <Label for="Attachment" className="LogBugLabels">Attachments:</Label>
-                            <div className="container-name">
-                                <Input type="file" multiple name="Attachment" id="AttachmentFile" label="Select one or more files" style={{ width: '500px', display: 'inline-block', fontSize: "0.75rem" }} onChange={(e) => { this.props.setFile(e) }} />
-                                <button name="AddAttachment" className="btn btn-primary LogBugButtons" style={AddattachmentStyling} onClick={(e) => { this.props.onAddAttachment(e, "AttachmentList", this.props.attachmentfiles) }}>Add Attachments</button>
-                            </div>
-                        </FormGroup>
-                        <AttachmentList id="AttachmentList" TabelId="Attachments"></AttachmentList>
-                    </Col>
-                </Row>
-            </TabPane>
-        );
-    }
+  render() {
+
+      let Formtext = ""
+      let Labelfor = ""
+      if (this.props.NewOrExisting === true) {
+        Formtext = <FormText color="muted">Do you need to add any attachments like a screenshot? Add them here</FormText>
+        Labelfor = <Label for="Attachment" className="LogBugLabels">Attachments:</Label>
+      }
+
+      return (
+        <TabPane tabId={this.props.Id}>
+          <Row>
+            <Col sm="12">
+              <FormGroup>
+                {Formtext}
+                {Labelfor}
+                <div className="container-name">
+                  <Input type="file" multiple name="Attachment" id="AttachmentFile" label="Select one or more files" style={{ width: '500px', display: 'inline-block', fontSize: "0.75rem" }} onChange={(e) => { this.props.setFile(e) }} />
+                  <button name="AddAttachment" className="btn btn-primary LogBugButtons" style={AddattachmentStyling} onClick={(e) => { this.props.onAddAttachment(e, "AttachmentList", this.props.attachmentfiles) }}>Add Attachments</button>
+                </div>
+              </FormGroup>
+              <AttachmentList id="AttachmentList" TabelId="AttachmentList" ExistingAttachments={this.props.ExistingAttachments} renderExistingFiles={this.props.renderExistingFiles} NewOrExisting={this.props.NewOrExisting}></AttachmentList>
+            </Col>
+          </Row>
+        </TabPane>
+      );
+
+  }
 }

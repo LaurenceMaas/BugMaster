@@ -7,6 +7,7 @@ import { StepsToRecreate } from './StepsToRecreate';
 import { ExpectedActual } from './ExpectedActual';
 import { Severity } from './Severity';
 import { Attachments } from './Attachments';
+import { Notes } from './Notes';
 import { LogBug } from './LogBug';
 import './LogBug.css';
 import classnames from 'classnames';
@@ -28,8 +29,13 @@ export class EditBug extends Component {
       LoggedBy: {},
       ActiveTab: '1',
       Severities: [],
-      Loading: true
+      Attachments: [],
+      Notes:[],
+      Loading: true,
+      Render: false
     }
+    this.onAddAttachment = this.onAddAttachment.bind(this);
+    this.renderExistingFiles = this.renderExistingFiles.bind(this);
 
   }
 
@@ -45,8 +51,9 @@ export class EditBug extends Component {
       fetch('/api/Severities', { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } }))
       .then(response => response.json())
       .then(response => this.setState({ Severities: response, Loading: false }))
-
   }
+
+
 
   hideResultModal = () => {
     this.setState({ ShowResultDialog: false });
@@ -56,8 +63,178 @@ export class EditBug extends Component {
     this.setState({ ActiveTab: tab })
   }
 
+
+  setFile = (e) => {
+    for (var i = 0; i < e.target.files.length; i++) {
+      if (!this.state.Attachments.find(element => element.name === e.target.files[i].name))
+      {
+        this.state.Attachments.push(e.target.files[i]) 
+      }
+    } 
+  }
+
+
+  onRemoveNote(e, rowname, tableId) {
+
+    e.preventDefault();
+    let rowtoRemove = document.getElementById(rowname)
+    let noteToRemove = this.state.Notes.find(element => element.name === rowtoRemove.cells[0].textContent)
+
+    rowtoRemove.remove();
+    this.state.Notes.splice(this.state.Notes.indexOf(noteToRemove), 1)
+    document.getElementById("SaveButton").style.visibility = "visible";
+  }
+
+
+  RenderExistingNotes = (tableId, Notes) => {
+    let tableRef = document.getElementById(tableId);
+    let renderednotes = []
+
+    if (Notes) {
+      Notes.map((note) => renderednotes.push(note))
+      let tableRef = document.getElementById(tableId);
+      if (tableRef) {
+        tableRef.innerHTML = ""
+
+        var filehead = tableRef.createTHead().insertRow(0).insertCell(0);
+        filehead.style = "font-size: 0.75rem;padding: 0.15rem"
+        filehead.innerHTML = "<b>Note</b>"
+      }
+    }
+    
+    renderednotes.map((note) =>
+    {
+      if (tableRef != null)
+      {
+        let newRow = tableRef.insertRow(-1);
+        let NoteVal = newRow.insertCell(0);
+        if (note instanceof Object) {
+          NoteVal.innerHTML = note.text;
+        } else {
+          NoteVal.innerHTML = note;
+        }
+        NoteVal.style = "font-size: 0.75rem;";
+
+        let rowname = "removeNote" + (tableRef.rows.length - 1)
+        newRow.id = rowname
+
+        let removeButton = newRow.insertCell(1);
+        var btn = document.createElement(rowname + "button");
+        btn.type = "button";
+        btn.className = "btn btn-primary LogBugButtons";
+        btn.style = "font-size: 0.4rem;"
+        btn.textContent = "Remove note"
+        btn.addEventListener("click", (e) => { this.onRemoveNote(e, rowname, tableId) });
+        removeButton.appendChild(btn);
+      
+      }
+    }) 
+  }
+
+  onAddNote = (tableId, Note, ExistingNotes) => {
+
+    let noteRef = document.getElementById(Note);
+    if (noteRef.value !== "") {
+      ExistingNotes.push(noteRef.value)
+
+      this.RenderExistingNotes(tableId, ExistingNotes)
+      noteRef.value = ""
+      document.getElementById("SaveButton").style.visibility = "visible";
+    }
+  }
+
+
+  renderExistingFiles = (attachmentfiles, tableId) => {
+    let files = []
+    if (attachmentfiles) {
+      attachmentfiles.map((attachment) => files.push(attachment))
+      let tableRef = document.getElementById(tableId);
+      if (tableRef) {
+        tableRef.innerHTML = ""
+
+        var filehead = tableRef.createTHead().insertRow(0).insertCell(0);
+        filehead.style = "font-size: 0.75rem;padding: 0.15rem"
+        filehead.innerHTML = "<b>File Name</b>"
+      }
+
+      if (files.length > 0) {
+
+        files.map((file) => {
+          if (tableRef) {
+            let newRow = tableRef.insertRow(-1);
+
+            let fileNameVal = newRow.insertCell(0);
+            if (file.fileName) {
+              fileNameVal.innerHTML = file.fileName;
+            } else {
+              fileNameVal.innerHTML = file.name;
+            }
+
+            fileNameVal.style = "font-size: 0.75rem;";
+
+            let rowname = "removeAttachment" + (tableRef.rows.length - 1)
+            newRow.id = rowname
+
+            let removeButton = newRow.insertCell(1);
+            var btn = document.createElement(rowname + "button");
+            btn.type = "button";
+            btn.className = "btn btn-primary LogBugButtons";
+            btn.style = "font-size: 0.4rem;"
+            btn.textContent = "Remove Attachment"
+            btn.addEventListener("click", (e) => {this.onDeleteAttachment(e, rowname, tableId, this.state.Attachments) });
+            removeButton.appendChild(btn);
+          }
+
+        })
+
+      }
+
+    }
+  }
+
+  onDeleteAttachment = (e, rowname, tableId, files) => {
+
+    let rowtoRemove = document.getElementById(rowname)
+    let tableToUpdate = document.getElementById(tableId)
+    let attachmentToRemove = null
+
+    for (let i = 0; i < files.length; i++) {
+      if ((files[i] instanceof File) && files[i].name === rowtoRemove.cells[0].textContent) {
+        attachmentToRemove = files[i]
+        break
+      } else if (files[i].fileName === rowtoRemove.cells[0].textContent) {
+        attachmentToRemove = files[i]
+        break
+      }
+    }
+
+    rowtoRemove.remove();
+    files.splice(files.indexOf(attachmentToRemove), 1)
+    if (tableToUpdate.rows.length === 1) {
+      document.getElementById("AttachmentFile").value = ""
+    }    
+
+    document.getElementById("SaveButton").style.visibility = "visible";
+  }
+
+  onAddAttachment(e, tableId, files)
+  {
+    let addedfiles = [];
+    files.map((attachment, i) =>
+    {
+      if ((attachment instanceof File))
+      {
+        addedfiles[i-1] = attachment
+      }
+
+    })
+
+    this.renderExistingFiles(this.state.Attachments, tableId)  
+    document.getElementById("SaveButton").style.visibility = "visible";
+  }
+
   BugInfoChanged = (id, changedElement, elementText) => {
-    console.log("in BugInfoChanged: ", elementText)
+
     switch (changedElement) {
       case "ShortDescription":
         this.setState({ Newshortdescription: elementText });
@@ -88,11 +265,28 @@ export class EditBug extends Component {
 
   }
 
+  static getDerivedStateFromProps(props, state)
+  {
+
+    if ((props.BugInfo.id > 0) && props.LoggedBy[0]) {
+      state.Attachments = props.BugInfo.attachments
+      state.Notes = props.BugInfo.notes
+      
+      return { Render: true } 
+    }
+    else
+    {
+      return { Render: false };
+    }
+
+  }
+
   render() {
     
-    if ((this.props.BugInfo.id > 0) && (this.props.LoggedBy[0])) {
+    if (this.state.Render === true)
+    {
       let contents = LogBug.renderSeverities(this.state.Severities, (this.props.BugInfo.severityId-1));
-      console.log("this.props.BugInfo:", this.props.BugInfo)
+      
       let BugTitle = "Edit bug id:" + this.props.BugInfo.id
       return (
         <Modal isOpen={this.props.ShowEditDialog} toggle={this.props.ShowEditDialog} className="modal-contentEditBug" >
@@ -130,7 +324,26 @@ export class EditBug extends Component {
                   Attachments
                 </NavLink>
               </NavItem>
+            <NavItem className="nav-itemBug">
+              <NavLink className={classnames({ active: this.state.ActiveTab === '6' }, 'nav-linkBug')}
+                onClick={() => { this.changeTab('6'); }}>
+                Notes
+                </NavLink>
+              </NavItem>
+              <NavItem className="nav-itemBug">
+                <NavLink className={classnames({ active: this.state.ActiveTab === '7' }, 'nav-linkBug')}
+                  onClick={() => { this.changeTab('7'); }}>
+                  Assignedto
+                </NavLink>
+              </NavItem>
+              <NavItem className="nav-itemBug">
+                <NavLink className={classnames({ active: this.state.ActiveTab === '8' }, 'nav-linkBug')}
+                  onClick={() => { this.changeTab('8'); }}>
+                  Status
+                </NavLink>
+              </NavItem>
             </Nav>
+
 
             <TabContent activeTab={this.state.ActiveTab} className="TabContent">
               <ShortDescription ExistingText={this.props.BugInfo.shortDescription} onChange={this.BugInfoChanged} Id="1"></ShortDescription>
@@ -145,7 +358,10 @@ export class EditBug extends Component {
               <Severity Id="4" Contents={contents}></Severity>
             </TabContent>
             <TabContent activeTab={this.state.ActiveTab} className="TabContent">
-              <Attachments Id="5" Contents={contents}></Attachments>
+              <Attachments Id="5" setFile={this.setFile} renderExistingFiles={this.renderExistingFiles} onAddAttachment={this.onAddAttachment} attachmentfiles={[]} NewOrExisting={false} ExistingAttachments={this.props.BugInfo.attachments}></Attachments>                  
+            </TabContent>
+            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+              <Notes Id="6" onAddNote={this.onAddNote} renderExistingNotes={this.RenderExistingNotes} Notes={this.state.Notes} NewOrExisting={false}></Notes> 
             </TabContent>
 
           </ModalBody>            
