@@ -124,7 +124,7 @@ export class LogBug extends Component {
       });
   }
 
-    static renderSeverities(Severities, selectedIndex = 0) {
+  static renderSeverities(Severities, selectedIndex = 0) {
 
       let selectsev = Severities.map((severity, i) => {
         if (i === selectedIndex) {

@@ -13,7 +13,8 @@ export class StepsToRecreate extends Component {
         </FormGroup>)
     } else {
       return (
-      <FormGroup>
+        <FormGroup>
+          <br />
           <Input type="textarea" name="text" id="StepsToRecreate" className="LogBugTextArea" defaultValue={ExistingText} onChange={() => { this.props.onChange("SaveButton", "StepsToRecreate", document.getElementById("StepsToRecreate").value) }} />
        </FormGroup>
       )

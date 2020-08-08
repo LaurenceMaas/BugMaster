@@ -15,6 +15,7 @@ export class ShortDescription extends Component {
     } else {
       return (
         <FormGroup>
+          <br />
           <Input type="textarea" name="text" id="ShortDescription" className="LogBugTextArea" defaultValue={ExistingText} onChange={() => { this.props.onChange("SaveButton", "ShortDescription", document.getElementById("ShortDescription").value) }}/>
         </FormGroup>
       )

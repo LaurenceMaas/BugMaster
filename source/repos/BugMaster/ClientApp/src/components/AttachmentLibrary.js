@@ -1,4 +1,6 @@
-﻿
+﻿import React from 'react';
+import { Input } from 'reactstrap';
+
 export const onAddAttachment=(e, tableId, files) => {
     e.preventDefault();
 
@@ -118,6 +120,34 @@ export const renderExistingFiles = (attachmentfiles, tableId) =>
       }
 
     }
-  }
+}
 
+export const createSelectElementWithDescription = (optionData, selectId, className, descriptionField, selectedIndex = 0) => {
+
+  if (optionData.length > 0) {
+    let Select = optionData.map((option, i) => {
+      if (i === selectedIndex && selectedIndex !==0) {
+        return <option key={i + 1} defaultValue={i}>{option[descriptionField]}</option>
+      } else {
+        return <option key={i+1} value={i}>{option[descriptionField]}</option>  
+      }
+    });
+
+    if (selectedIndex === 0) {
+      Select.splice(0, 0, <option key={0} value={0}></option>)
+    }
+
+    return (
+      <Input type="select" name={selectId} id={selectId} className={className} style={{ height: '40px' }} >
+        {Select}
+      </Input>
+    );
+  } else {
+    return (
+      <select>
+        <option value="1">Loading..</option>
+      </select>
+    );
+  }
+}
 

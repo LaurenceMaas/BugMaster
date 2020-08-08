@@ -1,6 +1,6 @@
 ﻿import './LogBug.css';
 import React, { Component } from 'react';
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, NavLink, NavItem, Nav, TabContent } from 'reactstrap';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, NavLink, NavItem, Nav, TabContent,Input } from 'reactstrap';
 import authService from './api-authorization/AuthorizeService';
 import { ShortDescription } from './ShortDescription';
 import { StepsToRecreate } from './StepsToRecreate';
@@ -8,8 +8,9 @@ import { ExpectedActual } from './ExpectedActual';
 import { Severity } from './Severity';
 import { Attachments } from './Attachments';
 import { Notes } from './Notes';
-import { LogBug } from './LogBug';
+import { DropDownItem } from './DropDownItem';
 import './LogBug.css';
+import { createSelectElementWithDescription } from './AttachmentLibrary'
 import classnames from 'classnames';
 
 const AddattachmentStyling = {
@@ -30,7 +31,9 @@ export class EditBug extends Component {
       ActiveTab: '1',
       Severities: [],
       Attachments: [],
-      Notes:[],
+      Notes: [],
+      Users: [],
+      Status:[],
       Loading: true,
       Render: false
     }
@@ -51,6 +54,21 @@ export class EditBug extends Component {
       fetch('/api/Severities', { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } }))
       .then(response => response.json())
       .then(response => this.setState({ Severities: response, Loading: false }))
+
+    authService.getAccessToken().then(token =>
+      fetch('/api/Admin', { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } }))
+      .then(response => response.json())
+      .then(response => this.setState({ Users: response }))
+
+    authService.getAccessToken().then(token =>
+      fetch('/api/status', { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } }))
+      .then(response => response.json())
+      .then(response => this.setState({ Status: response }))
+
+    authService.getAccessToken().then(token =>
+      fetch('api/Severities', { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } }))
+      .then(response => response.json())
+      .then(response => this.setState({ Severities: response }))
   }
 
 
@@ -265,14 +283,14 @@ export class EditBug extends Component {
 
   }
 
+
   static getDerivedStateFromProps(props, state)
   {
-
     if ((props.BugInfo.id > 0) && props.LoggedBy[0]) {
       state.Attachments = props.BugInfo.attachments
       state.Notes = props.BugInfo.notes
-      
-      return { Render: true } 
+
+      return {Render: true } 
     }
     else
     {
@@ -285,8 +303,12 @@ export class EditBug extends Component {
     
     if (this.state.Render === true)
     {
-      let contents = LogBug.renderSeverities(this.state.Severities, (this.props.BugInfo.severityId-1));
-      
+      let Severitycontents = createSelectElementWithDescription(this.state.Severities, "Severities", "LogBugButtons", "description", this.props.BugInfo.severityId-1);
+      let assignedtoContents = createSelectElementWithDescription(this.state.Users, "AssignedTo", "LogBugButtons", "userName",this.props.BugInfo.AssignedTo);
+      let statusContents = createSelectElementWithDescription(this.state.Status, "StatusId", "LogBugButtons", "description", this.props.BugInfo.currentStatusId);
+
+      console.log("this.state.Severities", this.state.Severities)
+      console.log("this.props.BugInfo", this.props.BugInfo)
       let BugTitle = "Edit bug id:" + this.props.BugInfo.id
       return (
         <Modal isOpen={this.props.ShowEditDialog} toggle={this.props.ShowEditDialog} className="modal-contentEditBug" >
@@ -355,13 +377,19 @@ export class EditBug extends Component {
               <ExpectedActual ExistingActualResults={this.props.BugInfo.actualResult} ExistingExpectedResults={this.props.BugInfo.expectedResult} onChange={this.BugInfoChanged} Id="3"></ExpectedActual>
             </TabContent>
             <TabContent activeTab={this.state.ActiveTab} className="TabContent">
-              <Severity Id="4" Contents={contents}></Severity>
+              <DropDownItem Id="4" Contents={Severitycontents}></DropDownItem>
             </TabContent>
             <TabContent activeTab={this.state.ActiveTab} className="TabContent">
               <Attachments Id="5" setFile={this.setFile} renderExistingFiles={this.renderExistingFiles} onAddAttachment={this.onAddAttachment} attachmentfiles={[]} NewOrExisting={false} ExistingAttachments={this.props.BugInfo.attachments}></Attachments>                  
             </TabContent>
             <TabContent activeTab={this.state.ActiveTab} className="TabContent">
               <Notes Id="6" onAddNote={this.onAddNote} renderExistingNotes={this.RenderExistingNotes} Notes={this.state.Notes} NewOrExisting={false}></Notes> 
+            </TabContent>
+            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+              <DropDownItem Id="7" Contents={assignedtoContents}></DropDownItem>
+            </TabContent>
+            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+              <DropDownItem Id="8" Contents={statusContents}></DropDownItem>
             </TabContent>
 
           </ModalBody>            

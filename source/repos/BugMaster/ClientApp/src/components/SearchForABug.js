@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Container, Row, Col, Input, InputGroup, InputGroupAddon, InputGroupText, Label,Table } from 'reactstrap';
+import { Container, Row, Col, Input, InputGroup, InputGroupAddon, InputGroupText, Label } from 'reactstrap';
 import './LogBug.css';
 import authService from './api-authorization/AuthorizeService';
 import { SearchResults } from './SearchResults';

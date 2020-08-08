@@ -17,7 +17,7 @@ export class Notes extends Component {
       return (
         <FormText color="muted"> Need to make a few notes? Make them here </FormText>)
     } else {
-      return (null)
+      return (<br />)
     }
   }
 
