@@ -28,7 +28,7 @@ export class ExpectedActual extends Component {
   }
 
   render() {
-    let neworexisting = this.NewOrExistingRender(this.props.ExistingExpectedResults, this.props.ExistingActualResults)
+    let neworexisting = this.NewOrExistingRender(this.props.ExistingActualResults, this.props.ExistingExpectedResults)
     return (
     <TabPane tabId={this.props.Id}>
       <Row>

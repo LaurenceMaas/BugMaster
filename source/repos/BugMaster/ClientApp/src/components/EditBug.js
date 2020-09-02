@@ -1,16 +1,15 @@
 ﻿import './LogBug.css';
 import React, { Component } from 'react';
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, NavLink, NavItem, Nav, TabContent,Input } from 'reactstrap';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, NavLink, NavItem, Nav, TabContent, Form } from 'reactstrap';
 import authService from './api-authorization/AuthorizeService';
 import { ShortDescription } from './ShortDescription';
 import { StepsToRecreate } from './StepsToRecreate';
 import { ExpectedActual } from './ExpectedActual';
-import { Severity } from './Severity';
 import { Attachments } from './Attachments';
 import { Notes } from './Notes';
 import { DropDownItem } from './DropDownItem';
 import './LogBug.css';
-import { createSelectElementWithDescription } from './AttachmentLibrary'
+import { createSelectElementWithDescription } from './Library'
 import classnames from 'classnames';
 
 const AddattachmentStyling = {
@@ -35,10 +34,12 @@ export class EditBug extends Component {
       Users: [],
       Status:[],
       Loading: true,
-      Render: false
+      Render: false,
+      ShowResultDialog: false
     }
     this.onAddAttachment = this.onAddAttachment.bind(this);
     this.renderExistingFiles = this.renderExistingFiles.bind(this);
+    this.SaveBug = this.SaveBug.bind(this);
 
   }
 
@@ -103,7 +104,6 @@ export class EditBug extends Component {
     document.getElementById("SaveButton").style.visibility = "visible";
   }
 
-
   RenderExistingNotes = (tableId, Notes) => {
     let tableRef = document.getElementById(tableId);
     let renderednotes = []
@@ -160,7 +160,6 @@ export class EditBug extends Component {
       document.getElementById("SaveButton").style.visibility = "visible";
     }
   }
-
 
   renderExistingFiles = (attachmentfiles, tableId) => {
     let files = []
@@ -228,6 +227,7 @@ export class EditBug extends Component {
 
     rowtoRemove.remove();
     files.splice(files.indexOf(attachmentToRemove), 1)
+
     if (tableToUpdate.rows.length === 1) {
       document.getElementById("AttachmentFile").value = ""
     }    
@@ -249,7 +249,9 @@ export class EditBug extends Component {
 
     this.renderExistingFiles(this.state.Attachments, tableId)  
     document.getElementById("SaveButton").style.visibility = "visible";
+    document.getElementById("AttachmentFile").value = ""
   }
+
 
   BugInfoChanged = (id, changedElement, elementText) => {
 
@@ -283,6 +285,45 @@ export class EditBug extends Component {
 
   }
 
+  hideResultModal = () => {
+    this.setState({ ShowResultDialog: false });
+  };
+
+  SaveBug()
+  {
+
+    let currentattachments = []
+    let attachfiletable = document.getElementById("AttachmentList")
+
+    for (var i = 0; i < attachfiletable.rows.length; i++) {
+      currentattachments.push(attachfiletable.rows[i].cells[0].textContent)  
+    }
+
+    let logformdata = new FormData();
+
+    logformdata.append("Id", this.props.BugInfo.id);
+    logformdata.append("LoggedById", this.props.BugInfo.loggedbyId);
+    logformdata.append("ShortDescription", document.getElementById("ShortDescription").value);
+    logformdata.append("StepsToRecreate", document.getElementById("StepsToRecreate").value);
+    logformdata.append("ExpectedResult", document.getElementById("ExpectedResult").value);
+    logformdata.append("ActualResult", document.getElementById("ActualResult").value);    
+    logformdata.append("SeverityId", document.getElementById("SeveritiesEd").value);
+    this.state.Attachments.map(attach => logformdata.append("attachmentstoAdd", attach));
+    this.state.Notes.map(note => logformdata.append("Notes", note));
+    currentattachments.map(attachment => logformdata.append("attachmentlist", attachment))
+    logformdata.append("AssignToId", document.getElementById("AssignedToEd").value);
+    logformdata.append("CurrentStatusId", document.getElementById("StatusIdEd").value);          
+
+     authService.getAccessToken().then(token =>
+       fetch('/api/Bugs/' + this.props.BugInfo.id, { method: 'PATCH', body: logformdata },
+         { headers: !token ? {} : { 'Authorization': `Bearer ${token}` } }))
+       .then(response => response.json())
+      .then(response => console.log(response))
+
+    document.getElementById("AttachmentFile").value = ""
+    document.getElementById("SaveButton").style.visibility = "hidden";
+    this.setState({ ShowResultDialog: true });
+   }
 
   static getDerivedStateFromProps(props, state)
   {
@@ -303,101 +344,105 @@ export class EditBug extends Component {
     
     if (this.state.Render === true)
     {
-      let Severitycontents = createSelectElementWithDescription(this.state.Severities, "Severities", "LogBugButtons", "description", this.props.BugInfo.severityId-1);
-      let assignedtoContents = createSelectElementWithDescription(this.state.Users, "AssignedTo", "LogBugButtons", "userName",this.props.BugInfo.AssignedTo);
-      let statusContents = createSelectElementWithDescription(this.state.Status, "StatusId", "LogBugButtons", "description", this.props.BugInfo.currentStatusId);
+      let assIndx = this.state.Users.map((usr) => { return (usr.id) }).indexOf(this.props.BugInfo.assignToId)
 
-      console.log("this.state.Severities", this.state.Severities)
-      console.log("this.props.BugInfo", this.props.BugInfo)
+      let Severitycontents = createSelectElementWithDescription(this.state.Severities, "SeveritiesEd", "LogBugButtons", "description", this.props.BugInfo.severityId-1);
+      let assignedtoContents = createSelectElementWithDescription(this.state.Users, "AssignedToEd", "LogBugButtons", "userName", assIndx,1);
+      let statusContents = createSelectElementWithDescription(this.state.Status, "StatusIdEd", "LogBugButtons", "description", this.props.BugInfo.currentStatusId-1);
+
       let BugTitle = "Edit bug id:" + this.props.BugInfo.id
-      return (
+      return ( <div>
         <Modal isOpen={this.props.ShowEditDialog} toggle={this.props.ShowEditDialog} className="modal-contentEditBug" >
-          <ModalHeader style={{ lineheight: "0.15", backgroundColor: "#F05F44", fontSize: "0.7rem" }}><h1 style={{ fontSize: "1.25rem" }}>{BugTitle}</h1></ModalHeader>
+          <ModalHeader style={{ lineheight: "0.15", backgroundColor: "#F05F44", fontSize: "0.7rem" }}><h1 style={{ fontSize: "1.25rem" }}>{BugTitle}</h1>
+          </ModalHeader>          
           <ModalBody style={{ whiteSpace: 'pre' }} >
             <Nav tabs>
-
               <NavItem className="nav-itemBug">
                 <NavLink className={classnames({ active: this.state.ActiveTab === '1' }, 'nav-linkBug')}
-                  onClick={() => { this.changeTab('1'); }}>
-                  Description
-                </NavLink>
+              onClick={() => { this.changeTab('1'); }}>
+                Description
+              </NavLink>
               </NavItem>
               <NavItem className="nav-itemBug">
                 <NavLink className={classnames({ active: this.state.ActiveTab === '2' }, 'nav-linkBug')}
-                  onClick={() => { this.changeTab('2'); }}>
+              onClick={() => { this.changeTab('2'); }}>
                   Steps to recreate
-                </NavLink>
+              </NavLink>
               </NavItem>
               <NavItem className="nav-itemBug">
                 <NavLink className={classnames({ active: this.state.ActiveTab === '3' }, 'nav-linkBug')}
-                  onClick={() => { this.changeTab('3'); }}>
+              onClick={() => { this.changeTab('3'); }}>
                   Expected vs Actual
-                </NavLink>
+              </NavLink>
               </NavItem>
               <NavItem className="nav-itemBug">
                 <NavLink className={classnames({ active: this.state.ActiveTab === '4' }, 'nav-linkBug')}
-                  onClick={() => { this.changeTab('4'); }}>
-                   Severity
-                </NavLink>
+              onClick={() => { this.changeTab('4'); }}>
+                  Severity
+              </NavLink>
               </NavItem>
               <NavItem className="nav-itemBug">
                 <NavLink className={classnames({ active: this.state.ActiveTab === '5' }, 'nav-linkBug')}
-                  onClick={() => { this.changeTab('5'); }}>
+              onClick={() => { this.changeTab('5'); }}>
                   Attachments
-                </NavLink>
+              </NavLink>
               </NavItem>
-            <NavItem className="nav-itemBug">
-              <NavLink className={classnames({ active: this.state.ActiveTab === '6' }, 'nav-linkBug')}
-                onClick={() => { this.changeTab('6'); }}>
-                Notes
-                </NavLink>
+              <NavItem className="nav-itemBug">
+                <NavLink className={classnames({ active: this.state.ActiveTab === '6' }, 'nav-linkBug')}
+              onClick={() => { this.changeTab('6'); }}>
+                  Notes
+              </NavLink>
               </NavItem>
               <NavItem className="nav-itemBug">
                 <NavLink className={classnames({ active: this.state.ActiveTab === '7' }, 'nav-linkBug')}
-                  onClick={() => { this.changeTab('7'); }}>
-                  Assignedto
-                </NavLink>
+              onClick={() => { this.changeTab('7'); }}>
+                Assignedto
+              </NavLink>
               </NavItem>
               <NavItem className="nav-itemBug">
                 <NavLink className={classnames({ active: this.state.ActiveTab === '8' }, 'nav-linkBug')}
-                  onClick={() => { this.changeTab('8'); }}>
+              onClick={() => { this.changeTab('8'); }}>
                   Status
-                </NavLink>
+              </NavLink>
               </NavItem>
             </Nav>
-
-
-            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
-              <ShortDescription ExistingText={this.props.BugInfo.shortDescription} onChange={this.BugInfoChanged} Id="1"></ShortDescription>
-            </TabContent>
-            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
-              <StepsToRecreate ExistingText={this.props.BugInfo.stepsToRecreate} onChange={this.BugInfoChanged} Id="2"></StepsToRecreate>
-            </TabContent>
-            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
-              <ExpectedActual ExistingActualResults={this.props.BugInfo.actualResult} ExistingExpectedResults={this.props.BugInfo.expectedResult} onChange={this.BugInfoChanged} Id="3"></ExpectedActual>
-            </TabContent>
-            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
-              <DropDownItem Id="4" Contents={Severitycontents}></DropDownItem>
-            </TabContent>
-            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
-              <Attachments Id="5" setFile={this.setFile} renderExistingFiles={this.renderExistingFiles} onAddAttachment={this.onAddAttachment} attachmentfiles={[]} NewOrExisting={false} ExistingAttachments={this.props.BugInfo.attachments}></Attachments>                  
-            </TabContent>
-            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
-              <Notes Id="6" onAddNote={this.onAddNote} renderExistingNotes={this.RenderExistingNotes} Notes={this.state.Notes} NewOrExisting={false}></Notes> 
-            </TabContent>
-            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
-              <DropDownItem Id="7" Contents={assignedtoContents}></DropDownItem>
-            </TabContent>
-            <TabContent activeTab={this.state.ActiveTab} className="TabContent">
-              <DropDownItem Id="8" Contents={statusContents}></DropDownItem>
-            </TabContent>
-
-          </ModalBody>            
-          <ModalFooter>
-            <Button id="SaveButton" className="btn btn-primary" style={{ fontSize: "0.5rem", marginLeft: '20px', marginTop: '20px', display: 'inline-block', visibility: 'hidden' }} onClick={this.props.onSave}>Save</Button>{' '}
+          <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+            <ShortDescription ExistingText={this.props.BugInfo.shortDescription} onChange={this.BugInfoChanged} Id="1"></ShortDescription>
+          </TabContent>
+          <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+            <StepsToRecreate ExistingText={this.props.BugInfo.stepsToRecreate} onChange={this.BugInfoChanged} Id="2"></StepsToRecreate>
+          </TabContent>
+          <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+            <ExpectedActual ExistingActualResults={this.props.BugInfo.actualResult} ExistingExpectedResults={this.props.BugInfo.expectedResult} onChange={this.BugInfoChanged} Id="3"></ExpectedActual>
+          </TabContent>
+          <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+            <DropDownItem Id="4" Contents={Severitycontents}></DropDownItem>
+          </TabContent>
+          <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+            <Attachments Id="5" setFile={this.setFile} renderExistingFiles={this.renderExistingFiles} onAddAttachment={this.onAddAttachment} attachmentfiles={[]} NewOrExisting={false} ExistingAttachments={this.props.BugInfo.attachments}></Attachments>                  
+          </TabContent>
+          <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+            <Notes Id="6" onAddNote={this.onAddNote} renderExistingNotes={this.RenderExistingNotes} Notes={this.state.Notes} NewOrExisting={false}></Notes> 
+          </TabContent>
+          <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+            <DropDownItem Id="7" Contents={assignedtoContents}></DropDownItem>
+          </TabContent>
+          <TabContent activeTab={this.state.ActiveTab} className="TabContent">
+            <DropDownItem Id="8" Contents={statusContents}></DropDownItem>
+          </TabContent>
+        </ModalBody>          
+          <ModalFooter>            
+            <Button id="SaveButton" variant="primary" onClick={this.SaveBug} className="btn btn-primary" style={{ fontSize: "0.5rem", marginLeft: '20px', marginTop: '20px', display: 'inline-block', visibility: 'hidden' }}>Save</Button>{' '}            
             <Button className="btn btn-primary" style={AddattachmentStyling} onClick={this.props.onDeactivateViewBug}>Close</Button>{' '}
           </ModalFooter>
-        </Modal>
+        </Modal> 
+        <Modal isOpen={this.state.ShowResultDialog} toggle={this.hideResultModal} style={{ whiteSpace: 'pre' }}>
+          <ModalHeader style={{ lineheight: "0.15", backgroundColor: "#F05F44", fontSize: "0.7rem" }}><h1 style={{ fontSize: "1.25rem" }}>Thank you! Your bug is now saved</h1></ModalHeader>
+          <ModalFooter>
+            <Button className="btn btn-primary" style={AddattachmentStyling} onClick={this.hideResultModal}>Ok,got it!</Button>{' '}
+          </ModalFooter>
+        </Modal> 
+        </div>        
       );
     } else {
       return "";

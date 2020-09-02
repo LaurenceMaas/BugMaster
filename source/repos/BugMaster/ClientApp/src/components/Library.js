@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { Input } from 'reactstrap';
 
-export const onAddAttachment=(e, tableId, files) => {
+export const onAddAttachment = (e, tableId, files, fileinput) => {
     e.preventDefault();
 
     //Get a reference to the table
@@ -35,7 +35,7 @@ export const onAddAttachment=(e, tableId, files) => {
           btn.className = "btn btn-primary LogBugButtons";
           btn.style = "font-size: 0.4rem;"
           btn.textContent = "Remove Attachment"
-          btn.addEventListener("click", (e) => { onDeleteAttachment(e, rowname, tableId, files) });
+          btn.addEventListener("click", (e) => { onDeleteAttachment(e, rowname, tableId, files, fileinput) });
           removeButton.appendChild(btn);
         }
       })
@@ -43,7 +43,7 @@ export const onAddAttachment=(e, tableId, files) => {
 
   }
 
-export const onDeleteAttachment = (e, rowname, tableId, files) => {
+export const onDeleteAttachment = (e, rowname, tableId, files, fileinput) => {
 
   e.preventDefault();
   let rowtoRemove = document.getElementById(rowname)
@@ -61,6 +61,7 @@ export const onDeleteAttachment = (e, rowname, tableId, files) => {
   }
   rowtoRemove.remove();
   files.splice(files.indexOf(attachmentToRemove), 1)
+
   if (tableToUpdate.rows.length === 1) {
     document.getElementById("AttachmentFile").value = ""
   }
@@ -122,23 +123,31 @@ export const renderExistingFiles = (attachmentfiles, tableId) =>
     }
 }
 
-export const createSelectElementWithDescription = (optionData, selectId, className, descriptionField, selectedIndex = 0) => {
+export const createSelectElementWithDescription = (optionData, selectId, className, descriptionField,selectedIndex,noval =0) => {
 
-  if (optionData.length > 0) {
-    let Select = optionData.map((option, i) => {
-      if (i === selectedIndex && selectedIndex !==0) {
-        return <option key={i + 1} defaultValue={i}>{option[descriptionField]}</option>
-      } else {
-        return <option key={i+1} value={i}>{option[descriptionField]}</option>  
+  let Select = []
+
+  if (noval === 1) {
+    Select.splice(0, 0, <option key={0} value={0}></option>)
+  }
+
+  if (optionData.length > 0)
+  {   
+    optionData.map((option,i) => 
+    {
+      if (i === selectedIndex)
+      {
+        Select.push(<option key={i} value={option.id} selected="selected">{optionData[i][descriptionField]}</option>)
       }
-    });
+      else
+      {
+        Select.push(<option key={i} value={option.id}>{optionData[i][descriptionField]}</option>)
+      }
 
-    if (selectedIndex === 0) {
-      Select.splice(0, 0, <option key={0} value={0}></option>)
-    }
+    })
 
     return (
-      <Input type="select" name={selectId} id={selectId} className={className} style={{ height: '40px' }} >
+      <Input type="select" name={selectId} id={selectId} className={className} style={{ height: '40px' }} onChange={() => document.getElementById("SaveButton").style.visibility = "visible"} >
         {Select}
       </Input>
     );

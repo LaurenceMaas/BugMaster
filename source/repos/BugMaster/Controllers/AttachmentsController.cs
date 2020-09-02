@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using BugMaster.DTOs;
 using AutoMapper;
+using System.IO;
 
 namespace BugMaster.Controllers
 {
@@ -20,11 +21,14 @@ namespace BugMaster.Controllers
     {
       private readonly ApplicationDbContext _context;
       private readonly IMapper _mapper;
+      private readonly IWebHostEnvironment _hostingEnvironment;
 
-      public AttachmentsController(ApplicationDbContext context, IMapper mapper)
-      {
-          _context = context;
-          _mapper = mapper;
+      public AttachmentsController(ApplicationDbContext context, IMapper mapper, IWebHostEnvironment Environment)
+        {
+            _context = context;
+            _mapper = mapper;
+            _hostingEnvironment = Environment;
+          
       }
 
       // GET: api/Attachments
@@ -115,21 +119,31 @@ namespace BugMaster.Controllers
           return CreatedAtAction("GetAttachment", new { id = attachmentToAdd.Id }, attachmentToAdd);
       }
 
-      // DELETE: api/Attachments/5
-      [HttpDelete("{id}")]
-      public async Task<ActionResult<Attachment>> DeleteAttachment(int id)
+    // DELETE: api/Attachments/5
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<Attachment>> DeleteAttachment(int id)
+    {
+      var attachment = await _context.Attachment.FindAsync(id);
+
+      if (attachment == null)
       {
-          var attachment = await _context.Attachment.FindAsync(id);
-          if (attachment == null)
-          {
-              return NotFound();
-          }
-
-          _context.Attachment.Remove(attachment);
-          await _context.SaveChangesAsync();
-
-          return attachment;
+        return NotFound();
       }
+
+      try
+      {
+        System.IO.File.Delete(Path.Combine(_hostingEnvironment.ContentRootPath, attachment.Path));
+      }
+      catch (IOException)
+      {
+        return NotFound();
+      }
+
+      _context.Attachment.Remove(attachment);
+      await _context.SaveChangesAsync();
+
+      return attachment;
+    }
 
       private bool AttachmentExists(int id)
       {

@@ -6,7 +6,7 @@ import { ShortDescription } from './ShortDescription';
 import { StepsToRecreate } from './StepsToRecreate';
 import { Severity } from './Severity';
 import { ExpectedActual } from './ExpectedActual';
-import { onAddAttachment } from './AttachmentLibrary';
+import { onAddAttachment } from './Library';
 import { Notes } from './Notes';
 import './LogBug.css';
 import classnames from 'classnames';

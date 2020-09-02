@@ -30,7 +30,7 @@ export class Attachments extends Component {
                 {Labelfor}
                 <div className="container-name">
                   <Input type="file" multiple name="Attachment" id="AttachmentFile" label="Select one or more files" style={{ width: '500px', display: 'inline-block', fontSize: "0.75rem" }} onChange={(e) => { this.props.setFile(e) }} />
-                  <button name="AddAttachment" className="btn btn-primary LogBugButtons" style={AddattachmentStyling} onClick={(e) => { this.props.onAddAttachment(e, "AttachmentList", this.props.attachmentfiles) }}>Add Attachments</button>
+                  <button name="AddAttachment" className="btn btn-primary LogBugButtons" style={AddattachmentStyling} onClick={(e) => { this.props.onAddAttachment(e, "AttachmentList", this.props.attachmentfiles,"AttachmentFile") }}>Add Attachments</button>
                 </div>
               </FormGroup>
               <AttachmentList id="AttachmentList" TabelId="AttachmentList" ExistingAttachments={this.props.ExistingAttachments} renderExistingFiles={this.props.renderExistingFiles} NewOrExisting={this.props.NewOrExisting}></AttachmentList>
