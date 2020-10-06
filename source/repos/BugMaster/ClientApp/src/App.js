@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Route } from 'react-router';
 import { Layout } from './components/Layout';
 import { RegisterLogin } from './components/RegisterLogin';
-import { LogDefect } from './components/LogDefect';
+import { LineChart } from './components/LineChart';
 import { LogBug } from './components/LogBug';
 import { EditBug } from './components/EditBug';
 import { SearchForABug } from './components/SearchForABug';
@@ -41,9 +41,10 @@ export default class App extends Component
 
     render()
     {
-        const { isAuthenticated, userName } = this.state;
+        const { isAuthenticated } = this.state;
         return isAuthenticated === true ?
-            <Layout>
+          <Layout>
+            <Route path='/LineChart' component={LineChart} />
                 <Route path='/LogBug' component={LogBug} />
                 <Route path='/SearchForABug' component={SearchForABug} />
                 <Route path='/Editbug' component={EditBug} />

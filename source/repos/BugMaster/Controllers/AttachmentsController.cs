@@ -70,7 +70,7 @@ namespace BugMaster.Controllers
     // PUT: api/Attachments/5
     // To protect from overposting attacks, please enable the specific properties you want to bind to, for
     // more details see https://aka.ms/RazorPagesCRUD.
-    [HttpPut("{id}")]
+      [HttpPut("{id}")]
       public async Task<IActionResult> PutAttachment(int id, Attachment attachment)
       {
         if (id != attachment.Id)

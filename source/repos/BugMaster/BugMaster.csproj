@@ -57,7 +57,6 @@
     <None Remove="ClientApp\src\components\BugSearch.js" />
     <None Remove="ClientApp\src\components\BugSearchResults.js" />
     <None Remove="ClientApp\src\components\Counter.js" />
-    <None Remove="ClientApp\src\components\Home.js" />
     <None Remove="ClientApp\src\components\LogDefect.js" />
     <None Remove="ClientApp\src\components\LogDefectForm.js" />
     <None Remove="ClientApp\src\components\Severity.js" />

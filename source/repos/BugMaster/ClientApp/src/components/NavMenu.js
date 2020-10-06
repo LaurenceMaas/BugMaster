@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Collapse, Container, Navbar, NavbarBrand, NavItem, NavLink } from 'reactstrap';
-import { FiAlertCircle } from "react-icons/fi";
 import { Link } from 'react-router-dom';
 import { LoggedinMenu } from './api-authorization/LoggedinMenu';
 import './NavMenu.css';
@@ -29,7 +28,7 @@ export class NavMenu extends Component {
             <header>
                 <Navbar className="inverse navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" light>
                     <Container>
-                        <NavbarBrand tag={Link} id = "home" to="/"><i className="fas fa-bug"></i> BugMaster</NavbarBrand>                        
+                        <NavbarBrand tag={Link} id = "home" to="/LineChart"><i className="fas fa-bug"></i> BugMaster</NavbarBrand>                        
                         <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
                             <ul className="navbar-nav flex-grow">
                                 <NavItem>
